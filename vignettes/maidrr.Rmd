@@ -1,0 +1,366 @@
+---
+title: 'How to use maidrr in R'
+author: 'Roel Henckaerts'
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{maidrr}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{css, echo = FALSE}
+pre code, pre, code {
+  white-space: pre !important;
+  overflow-x: scroll !important;
+  word-break: keep-all !important;
+  word-wrap: initial !important;
+}
+```
+
+<style>
+body {
+text-align: justify}
+</style>
+
+```{r options, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = '#>', cache = TRUE, cache.lazy = FALSE)
+library(magrittr)
+library(ggplot2)
+library(foreach)
+```
+
+```{r setup}
+library(maidrr)
+```
+
+
+## MTPL datasets included in maidrr
+The `maidrr` package contains two motor third party liability (MTPL) insurance portfolios, one from Belgium (BE) and one from France (FR). Both will be used to illustrate the use of `maidrr`, so let's have a quick look at them:
+```{r data}
+data('mtpl_be') ; str(mtpl_be, give.attr = FALSE)
+data('mtpl_fr') ; str(mtpl_fr, give.attr = FALSE)
+```
+The details on all the features included in the BE and FR portfolio are available in the package documentation. These can be retrieved via `?maidrr::mtpl_be` and `?maidrr::mtpl_fr` for the BE and FR portfolio respectively.
+
+
+## Black box algorithm to start from
+A Poisson GBM is trained on each MTPL portfolio in order to model and predict the claim frequency, i.e., the number of claims filed by a policyholder. Note that the tuning parameter values are chosen rather arbitrarily as the tuning of an optimal black box algorithm is not the purpose of this vignette. The goal of `maidrr` is to obtain an interpretable surrogate model that approximates your black box as closely as possible. Let's get started!
+```{r gbm, message = FALSE}
+library(gbm)
+set.seed(54321)
+gbm_be <- gbm(nclaims ~ offset(log(expo)) + ageph + power + bm + agec + coverage + fuel + sex + fleet + use,
+              data = mtpl_be, distribution = 'poisson', shrinkage = 0.01, n.trees = 500, interaction.depth = 3)
+gbm_fr <- gbm(nclaims ~ offset(log(expo)) + ageph + power + bm + agec + fuel + brand + region,
+              data = mtpl_fr, distribution = 'poisson', shrinkage = 0.01, n.trees = 500, interaction.depth = 3)
+```
+
+
+## Workflow of the maidrr procedure
+This section describes the four main functions in `maidrr` that facilitate the workflow from black box to surrogate:
+
+1. `insights`: obtain insights from a black box model in the form of feature effects.
+1. `segmentation`: perform segmentation of observations based on the grouping of feature effects.
+1. `surrogate`: fit a surrogate generalized linear model (GLM) to the segmented data.
+1. `explain`: explain the prediction of a surrogate GLM via each feature's contribution.
+
+These operations are designed in a way that allows for piping via `%>%` from `magrittr` to create a neat workflow: `bb_fit %>% insights(...) %>% segmentation(...) %>% surrogate(...) %>% explain(...)`
+
+
+### Insights from the black box
+Call `insights(mfit, vars, data, interactions = 'auto', hcut = 0.5, pred_fun = NULL)` with arguments:
+
+* `mfit`: fitted model object (e.g., a "gbm" or "randomForest" object).
+* `vars`: character vector specifying the features to get insights on.
+* `data`: data frame containing the original training data.
+* `interactions`: string specifying how to deal with interaction effects (only two-way interactions allowed).
+    + `"none"`: interaction effects between features are not included in the output.
+    + `"user"`: specify the two-way interactions yourself in `vars` as the string `"var1_var2"`. For example, to obtain the interaction effect between the age of the policyholder and power of the car, specify the following three components in `vars`: `"ageph"`, `"power"` and `"ageph_power"`.
+    + `"auto"`: automatic selection of the most important two-way interactions, determined by `hcut`.
+* `hcut`: numeric in the range [0,1] specifying the cut-off value for the normalized cumulative H-statistic over all two-way interactions between the features in `vars`. In a nutshell: 1) Friedman's H-statistic, measuring interaction strength, is calculated for all two-way interactions between the features in `vars`. 2) Interactions are ordered from most to least important and the normalized cumulative sum of the H-statistic is calculated. 3) The minimal set of interactions which exceeds the value of `hcut` is retained in the output.
+    + `hcut = 0`: only retain the single most important interaction.
+    + `hcut = 1`: retain all possible two-way interactions.
+* `pred_fun`: optional prediction function for the model in `mfit` to calculate feature effects, which should be of the format `function(object, newdata) mean(predict(object, newdata, ...))`. See the argument `pred.fun` in the `pdp::partial` function, on which `maidrr` relies to calculate model insights. This function allows to calculate effects for model classes which are not supported by `pdp::partial`.
+
+To illustrate the use of the argument `pred_fun` we define the following function for our GBMs:
+```{r gbm_fun}
+gbm_fun <- function(object, newdata) mean(predict(object, newdata, n.trees = object$n.trees, type = 'response'))
+```
+
+For the FR portfolio, we ask for the effects on all features in the GBM and one user-specified interaction:
+```{r insights_fr, warning = FALSE}
+fx_vars_fr <- gbm_fr %>% insights(vars = c(gbm_fr$var.names, 'power_fuel'),
+                                  data = mtpl_fr,
+                                  interactions = 'user',
+                                  pred_fun = gbm_fun)
+```
+
+For the BE portfolio, we ask for the effects on all features in the GBM and the auto-selected interactions:
+```{r insights_be, warning = FALSE}
+fx_vars_be <- gbm_be %>% insights(vars = gbm_be$var.names,
+                                  data = mtpl_be,
+                                  interactions = 'auto',
+                                  hcut = 0.75,
+                                  pred_fun = gbm_fun)
+```
+
+The output is a named list of `tibble` objects containing the effects, one for each feature and interaction:
+```{r insights_out_frmt}
+class(fx_vars_be)
+names(fx_vars_be)
+```
+
+The `tibble` for a main effect has `r ncol(fx_vars_be[['ageph']])` columns with standardized names ``r names(fx_vars_be[['ageph']])`` containing the feature value, the effect and the number of observations counts in `data` respectively.
+```{r insights_out_main}
+fx_vars_be[['ageph']]
+```
+
+The `tibble` for an interaction effect has `r ncol(fx_vars_be[['bm_agec']])` columns with standardized names ``r names(fx_vars_be[['bm_agec']])`` containing the feature values, the effect and the number of observations counts in `data` respectively.
+```{r insights_out_intr}
+fx_vars_be[['bm_agec']]
+```
+
+Notice the difference in the scale of the feature effect, contained in column `y`, for a main and interaction effect. This comes from the fact that the interaction effects are calculated as pure interactions by subtracting both 1D effects from the 2D effect. Therefore the main effects will be centered around the observed claim frequency, which equals to `r round(sum(mtpl_be$nclaims)/sum(mtpl_be$expo), digits = 4)` for the BE portfolio, while the interaction effects are centered around zero:
+```{r insights_yrange}
+unlist(lapply(fx_vars_be, function(fx) weighted.mean(fx$y, fx$w)))
+```
+
+The function `maidrr::plot_pd` can be used to visualize the effects. This is illustrated for a continuous feature in the BE portfolio and a categorical feature in the FR portfolio, where darker colours or larger dots indicate higher observation counts for those feature values:
+```{r insights_plt_main, fig.width = 7}
+gridExtra::grid.arrange(fx_vars_be[['ageph']] %>% plot_pd + ggtitle('MTPL BE'), 
+                        fx_vars_fr[['brand']] %>% plot_pd + ggtitle('MTPL FR'),
+                        ncol = 2)
+```
+
+The function `maidrr::plot_pd` can also be used to visualize the interactions. This is illustrated for two continuous features in the BE portfolio and two categorical features in the FR portfolio. It is important to understand that these represent corrections on the main effects of those features. So young policyholders driving a high powered car receive an extra penalty on top of their main effects in the BE portfolio. In the FR portfolio one can conclude that for low powered cars diesel is more risky than gasoline, but this behaviour reverses as of power level 7 and the difference becomes even bigger as of power level 9.
+```{r insights_plt_intr, fig.width = 7, fig.height = 7}
+gridExtra::grid.arrange(fx_vars_be[['ageph_power']] %>% plot_pd + ggtitle('MTPL BE'), 
+                        fx_vars_fr[['power_fuel']] %>% plot_pd + ggtitle('MTPL FR'),
+                        ncol = 1)
+```
+
+The goal of the `maidrr` procedure is to group values/levels within a feature which are showing similar behaviour. Regions where the effect is quite stable can be grouped together, for example:
+
+* the age ranges 35-45 and 60-80 in the BE portfolio,
+* the brands B5, B3 and B10 in the FR portfolio,
+* ages above 30 combined with power below 170 in the BE portfolio,
+* power levels above 8 with the fuel types in the FR portfolio.
+
+Performing such a grouping in an optimal, automatic and data-driven way is the goal of `maidrr`, stay tuned!
+
+**Note on variable selection:** In the above examples we simply used all the features from the GBM (via `$var.names` on the `gbm` object). You might want to exclude unimportant features from your analysis to save computation time when many features are used in your black box model. The functions `maidrr::get_vi` and `maidrr::plot_vi` allow to obtain some insights on the important features in the black box. The former calculates variable importance scores for all features in the model (`tibble` output), while the latter plots the results (`ggplot` output). These functions can be used to determine which features to supply to the `vars` argument in `insights`.
+```{r insights_vi, fig.width = 7}
+gridExtra::grid.arrange(gbm_be %>% get_vi %>% plot_vi + ggtitle('MTPL BE'),
+                        gbm_fr %>% get_vi %>% plot_vi + ggtitle('MTPL FR'),
+                        ncol = 2)
+```
+
+
+#### Helper functions
+The function `insights` streamlines the exploration process by making use of several `maidrr` helper functions:
+
+* `get_pd`: calculates the partial dependence (PD) effect for a specific feature (1D) or pair of features (2D).
+* `get_grid`: determines the grid on which to evaluate the PD effect (based on the observed data values).
+* `interaction_pd`: computes the pure interaction effect by subtracting both 1D PDs from the 2D PD.
+* `interaction_strength`: calculates Friedman's H-statistic for the interaction strength of two features.
+
+These functions can be used on a stand-alone basis to perform your own tailored analysis. Details on the use of these functions and input requirements are available in the documentation of `maidrr`.
+
+
+### Segmantation of the data
+Call `segmentation(fx_vars, data, lambda)` with arguments:
+
+* `fx_vars`: list of data frames containing the feature effects, preferably the output of `maidrr::insights`.
+* `data`: data frame containing the original training data.
+* `lambda`: numeric value or numeric vector for the penalty parameter lambda (see formula below).
+    + numeric value: same penalty parameter lambda is used for all features in `fx_vars`.
+    + numeric vector: feature-specific lambdas, must satisfy `length(lambda) == length(fx_vars)`.
+
+For any feature, let *n* be the unique number of observed levels/values in the data and *y* the calculated effect for each level/value. When the feature is split in *k* groups, let *g* represent the average value of *y* within the groups. A penalized loss function is defined as follows:
+$$ \frac{1}{n} \sum_{i=1}^{n} \left( y_i - g_i \right)^2 + \lambda \log(k)  \,. $$
+The first part measures how well the effect *y* is approximated by the grouped variant *g* in the form of a mean squared error over all levels/values of the feature. The second part measures the complexity of the grouping by means of the common logarithm of the number of groups for the feature. The penalty parameter $\lambda$ acts as a bias-variance trade-off. A low value will allow a lot of groups, resulting in an accurate approximation of the effect. A high value will enforce using fewer groups, resulting in a coarse approximation of the effect. For a specified value of $\lambda$, the optimal number of groups *k* follows by minimizing the penalized loss function. The grouping in `maidrr` is done via the `Ckmeans.1d.dp` package.
+
+We segment the BE portfolio with the same penalty parameter for all features and interactions. The grouped features are added to the `data` with a trailing underscore in their column name. The number of groups says someting about the importance of each feature, but notice the difference in number of groups between the main and interaction effects. Due to the scale difference in `y` between the main and interaction effects (see comment earlier + penalized loss function formula), it is best to use distinct values of $\lambda$ for main and interaction effects.
+```{r segmentation_be}
+gr_data_be <- fx_vars_be %>% segmentation(data = mtpl_be,
+                                          lambda = 0.0001)
+head(gr_data_be)
+gr_data_be %>% 
+  dplyr::select(dplyr::ends_with('_')) %>% 
+  dplyr::summarise_all(dplyr::n_distinct)
+```
+
+We segment the FR portfolio by different $\lambda$ values, one for the main effects and a smaller one for the interaction:
+```{r segmentation_fr}
+gr_data_fr <- fx_vars_fr %>% segmentation(data = mtpl_fr,
+                                          lambda = ifelse(grepl('_', names(fx_vars_fr)),
+                                                          0.00001,
+                                                          0.0001))
+gr_data_fr %>% 
+  dplyr::select(dplyr::ends_with('_')) %>% 
+  dplyr::summarise_all(dplyr::n_distinct)
+```
+
+It is possible to use `maidrr::plot_pd` with `maidrr::group_pd` to get an idea of the actual grouping of features:
+```{r segmentation_plt_main, fig.width = 7}
+gridExtra::grid.arrange(fx_vars_be[['ageph']] %>% group_pd(ngroups = 7) %>% plot_pd + ggtitle('MTPL BE'), 
+                        fx_vars_fr[['brand']] %>% group_pd(ngroups = 5) %>% plot_pd + ggtitle('MTPL FR'),
+                        ncol = 2)
+```
+
+```{r segmentation_plt_intr, fig.width = 7}
+gridExtra::grid.arrange(fx_vars_be[['ageph_power']] %>% group_pd(ngroups = 3) %>% plot_pd + ggtitle('MTPL BE'), 
+                        fx_vars_fr[['power_fuel']] %>% group_pd(ngroups = 4) %>% plot_pd + ggtitle('MTPL FR'),
+                        ncol = 2)
+```
+
+The choice of the value(s) for $\lambda$ is the most important aspect in the `maidrr` procedure, as it will determine the level of segmentation in your data. You can tune this parameter yourself or rely on the `maidrr::autotune` function, which is introduced [later](#auto). First we still need to cover the topic of fitting the actual surrogate model.
+
+#### Helper functions
+The function `segmentation` streamlines the grouping process by making use of several `maidrr` helper functions:
+
+* `group_pd`: groups the effect by making use of `rpart` or `Ckmeans.1d.dp` depending on the feature type.
+* `optimal_ngroups`: determines the optimal number of groups for an effect and a specified value of $\lambda$.
+
+These functions can be used on a stand-alone basis to perform your own tailored analysis. Details on the use of these functions and input requirements are available in the documentation of `maidrr`.
+
+### Fitting a surrogate GLM
+Call `surrogate(data, par_list)` with arguments:
+
+* `data`: data frame containing the segmented training data, preferably the output of `maidrr::segmentation`.
+* `par_list`: named list, constructed via `alist()`, with additional arguments to be passed on to `glm()`. Refer to `?glm` for all the options, but some common examples are:
+    + formula: object of the class `formula` with a symbolic description of the GLM to be fitted.
+    + family: description of the error distribution and link function to be used in the GLM.
+    + weights: vector of prior weights to be used in the fitting process.
+    + offset: a priori known component to be included in the linear predictor during fitting.
+
+It is important to only include featues with at least 2 groups in the `formula`, the rest is captured by the intercept.
+
+Let's fit a surrogate Poisson GLM to the segmented BE portfolio with exposure as offset (same specs as GBM):
+```{r surrogate_be}
+features_be <- gr_data_be %>% 
+  dplyr::select(dplyr::ends_with('_')) %>% 
+  dplyr::summarise_all(~dplyr::n_distinct(.) > 1) %>% 
+  unlist %>% which %>% names
+features_be
+
+formula_be <- as.formula(paste('nclaims ~', paste(features_be, collapse = '+')))
+formula_be
+
+glm_be <- gr_data_be %>% surrogate(par_list = alist(formula = formula_be,
+                                                    family = poisson(link = 'log'),
+                                                    offset = log(expo)))
+glm_be
+```
+Some conclusions can be drawn fast and easily from the fitted GLM coeffients:
+
+* young policyholders are more risky compared to the older ones,
+* low powered cars are less risky compared to the high powerded ones,
+* the risk is monotonically increasing in the bonus-malus level,
+* policyholders driving a new car are more prone to file a claim,
+* policyholders with extended coverage above the standard TPL cover are less risky and
+* policyholders driving diesel cars are more risky compared to those driving a gasoline car.
+
+Let's also fit a surrogate Poisson GLM to the segmented FR portfolio with exposure as offset:
+```{r surrogate_fr}
+features_fr <- gr_data_fr %>% 
+  dplyr::select(dplyr::ends_with('_')) %>% 
+  dplyr::summarise_all(~dplyr::n_distinct(.) > 1) %>% 
+  unlist %>% which %>% names
+features_fr
+
+formula_fr <- as.formula(paste('nclaims ~', paste(features_fr, collapse = '+')))
+formula_fr
+
+glm_fr <- gr_data_fr %>% surrogate(par_list = alist(formula = formula_fr,
+                                                    family = poisson(link = 'log'),
+                                                    offset = log(expo)))
+glm_fr
+```
+Global model conclusions can again be drawn from the fitted GLM coefficients. However, let's turn the focus on explaining predictions for individual observations in the next section.
+
+
+### Explaining the predictions
+Call `explain(surro, instance, plt = TRUE)` with arguments:
+
+* `surro`: surrogate GLM object of class `glm`, preferably the output of `maidrr::surrogate`.
+* `instance`: single row data frame with the instance to be explained.
+* `plt`: boolean whether to return a ggplot (TRUE) or the underlying data (FALSE).
+
+Let's explain the prediction made by the BE GLM for two policyholders (id 34 and 4938). Notice that the prediction for the former is below the intercept of the GLM, while it is more than doubled for the latter. Why is this the case? The low risk for id 34 is mainly thanks to a low bonus-malus level and high age. Driving a high powered car increases the risk on the other hand. The high risk for id 4938 is mainly due to a high bonus-malus level and young age. Driving a low powered car decreases the risk on the other hand. Note that these contributions and standard errors or shown on the response scale after taking the invere link function of the coefficients. For a Poisson GLM with `log`-link function this implies applying the `exp` function on the coefficients, with contributions on the multiplicative response scale and a value of 1 indicating no effect of that feature.
+```{r explain_be, fig.width = 7}
+exp(coef(glm_be)['(Intercept)'])
+glm_be %>% predict(newdata = gr_data_be[34, ], type = 'response') / gr_data_be[34, 'expo']
+glm_be %>% predict(newdata = gr_data_be[4938, ], type = 'response') / gr_data_be[4938, 'expo']
+
+gridExtra::grid.arrange(glm_be %>% explain(instance = gr_data_be[34, ]) + ggtitle('ID 34'), 
+                        glm_be %>% explain(instance = gr_data_be[4938, ]) + ggtitle('ID 4938'),
+                        ncol = 2)
+```
+
+We can follow the same approach for the FR GLM for two policyholders (id 34 and 4938). The prediction for the former is below the GLM intercept, while it is more than doubled for the latter. Why is this the case? The low risk for id 34 is mainly thanks to a low bonus-malus level and driving a car of brand B12 (we have seen this before in the PD effect). The high risk for id 4938 is mainly driven by a high bonus-malus level.
+```{r explain_fr, fig.width = 7}
+exp(coef(glm_fr)['(Intercept)'])
+glm_fr %>% predict(newdata = gr_data_fr[34, ], type = 'response') / gr_data_fr[34, 'expo']
+glm_fr %>% predict(newdata = gr_data_fr[4938, ], type = 'response') / gr_data_fr[4938, 'expo']
+
+gridExtra::grid.arrange(glm_fr %>% explain(instance = gr_data_fr[34, ]) + ggtitle('ID 34'), 
+                        glm_fr %>% explain(instance = gr_data_fr[4938, ]) + ggtitle('ID 4938'),
+                        ncol = 2)
+```
+
+These are of course just toy examples with random segmentation choices, namely the value(s) of $\lambda$, to illustrate the functionalty of `maidrr`. Tuning the value of $\lambda$ is very important to obtain competitive prediction models. Therefore we incorporate a function to automate this task for you: `maidrr::autotune`.
+
+## Automated lambda tuning
+<a id="auto"></a>
+The `maidrr` workflow from black box to surrogate via `bb_fit %>% insights(...) %>% segmentation(...) %>% surrogate(...)` is highly dependend on the value(s) of $\lambda$ supplied to `maidrr::segmentation`. The grouping and selection of features is entirely dependend on $\lambda$. Any ad-hoc choice is most likely going to result in a surrogate which is not really competitive with the original black box model, so it is important to choose the value(s) for $\lambda$ in an optimal way. To automate this tuning task, `maidrr` contains two functions: `autotune(...)` and `autofit(...)`. The former iterates over a grid of $\lambda$'s and calculates cross-validation errors for each grid value, while the latter uses the tuning results to fit the optimal surrogate model. Let's get into some more detail on both functions.
+
+
+### Tuning via cross-validation
+Call `autotune(fx_vars, data, target, lambdas = as.vector(outer(seq(1, 10, 0.1), 10^(-7:3))),``nfolds = 5, strat_vars = NULL, glm_par = alist(), err_fun = mse, ncores = -1)` with arguments:
+
+* `fx_vars`: list of data frames containing the feature effects, preferably the output of `maidrr::insights`.
+* `data`: data frame containing the original training data.
+* `target`: string specifying the name of the target (or response) variable to model.
+* `lambdas`: numeric vector with the possible $\lambda$ values to explore. The search grid is created automatically via `maidrr::lambda_grid`. This grid contains only those values of $\lambda$ that result in a unique grouping of the full set of features. If both main and interaction effects are present in `fx_vars`, a seperate grid is generated and all the pairwise combinations are evaluated in a cartesian grid search.
+* `nfolds`: integer for the number of folds to use in K-fold cross-validation.
+* `strat_vars`: character (vector) specifying the feature(s) to use for stratified sampling in the creation of the folds. The default `NULL` implies no stratification is applied.
+* `glm_par`: named list, constructed via `alist()`, with additional arguments to be passed on to `glm()` (see the section on `surrogate`). Note however that the argument `formula` will be ignored as the formula is determined automatically by the `target` and the selected features during the tuning process.
+* `err_fun`: function to calculate the prediction errors on the validation folds. This must be an R function which outputs a single number and takes two vectors `y_pred` and `y_true` as input for the predicted and true target values respectively. An additional input vector `w_case` is allowed to use case weights in the error function. The weights are determined automatically based on the `weights` field supplied to `glm_par`. The `maidrr` package contains the following functions as examples:
+    + `mse`: mean squared error loss function.
+    + `wgt_mse`: weighted mean squared error loss function.
+    + `poi_dev`: Poisson deviance loss function.
+* `ncores`: integer specifying the number of cores to use. The default `ncores = -1` uses all the available physical cores (not threads).
+
+
+
+```{r autotune_be}
+set.seed(5678)
+tune_be <- fx_vars_be %>% autotune(data = mtpl_be,
+                                   target = 'nclaims',
+                                   lambdas = as.vector(outer(seq(1, 10, 0.1), 10^(-7:3))),
+                                   nfolds = 5,
+                                   strat_vars = c('nclaims', 'expo'),
+                                   glm_par = alist(family = poisson(link = 'log'),
+                                                   offset = log(expo)),
+                                   err_fun = poi_dev,
+                                   ncores = -1)
+tune_be
+```
+
+```{r autotune_be2}
+tune_be %>% dplyr::slice(1) %>% 
+           unlist(., use.names=TRUE)
+```
+
+
+### Fitting the optimal surrogate
+Call `autofit(autotune_out, fx_vars, data, target, glm_par = alist())` with arguments:
+
+* `autotune_out`: data frame with the results from `maidrr::autotune`.
+* `fx_vars`: list of data frames containing the feature effects, preferably the output of `maidrr::insights`.
+* `data`: data frame containing the original training data.
+* `target`: string specifying the name of the target (or response) variable to model.
+* `glm_par`: named list, constructed via `alist()`, with additional arguments to be passed on to `glm()` (see the section on `surrogate`). Note however that the argument `formula` will be ignored as the formula is determined automatically by the `target` and the selected features during the tuning process.
+

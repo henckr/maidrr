@@ -1,0 +1,55 @@
+#' Calculate interaction strength
+#'
+#' Compute feature two-way interaction strength based on Friedman's H-statistic.
+#'
+#' @param pd_2d A data frame containing the 2D partial dependence as returned by
+#'   \code{\link{get_pd}} with \code{var = 'var1_var2'}.
+#' @param pd_1d A list of data frames containing the 1D partial dependence for
+#'   var1 and var2 as returned by \code{\link{get_pd}} with \code{var = 'var1'}
+#'   and \code{var = 'var2'} respectively.
+#' @return A numeric value between 0 and 1 indicating interaction strength.
+#' @examples
+#' \dontrun{
+#' data('mtpl_be')
+#' features <- setdiff(names(mtpl_be),c('id', 'nclaims', 'expo'))
+#' set.seed(12345)
+#' gbm_fit <- gbm::gbm(as.formula(paste('nclaims ~',
+#'                                paste(features, sep = ' ', collapse = ' + '))),
+#'                     distribution = 'poisson',
+#'                     data = mtpl_be,
+#'                     n.trees = 50,
+#'                     interaction.depth = 3,
+#'                     shrinkage = 0.1)
+#' gbm_fun <- function(object, newdata) mean(predict(object, newdata, n.trees = object$n.trees, type = 'response'))
+#' pd_2d <- get_pd(mfit = gbm_fit,
+#'                 var = 'ageph_power',
+#'                 grid = expand.grid('ageph' = 20:60, 'power' = 40:70),
+#'                 data = mtpl_be,
+#'                 subsample = 10000
+#'                 fun = gbm_fun)
+#' pd_1d <- list(get_pd(mfit = gbm_fit,
+#'                      var = 'ageph',
+#'                      grid = data.frame('ageph' = 20:60),
+#'                      data = mtpl_be,
+#'                      subsample = 10000
+#'                      fun = gbm_fun),
+#'               get_pd(mfit = gbm_fit,
+#'                      var = 'power',
+#'                      grid = data.frame('power' = 40:70),
+#'                      data = mtpl_be,
+#'                      subsample = 10000
+#'                      fun = gbm_fun))
+#' interaction_strength(pd_2d, pd_1d)
+#' }
+#' @export
+interaction_strength <- function(pd_2d, pd_1d) {
+
+  # Return zero when both interactions are not used by the model
+  if (length(unique(pd_2d$y)) == 1) return(0)
+
+  # Get the pure interaction effect
+  pd_intr <- interaction_pd(pd_2d, pd_1d)
+
+  # Calculate Friedman's H statistic
+  return(sum(pd_intr$y^2)/sum((pd_2d$y - mean(pd_2d$y))^2))
+}

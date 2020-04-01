@@ -1,0 +1,39 @@
+Package: maidrr
+Title: Model-Agnostic Interpretable Data-driven suRRogate
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "Roel",
+           family = "Henckaerts",
+           role = c("aut", "cre"),
+           email = "roel.henckaerts@kuleuven.be")
+Description: Implementation of the mAIDs procedure in R.
+    Develop an interpretable surrogate for any type of black box algorithm.
+    Partial dependencies are used to obtain model insights and group feature levels.
+    The segmentation happens in a data-driven way with built-in feature selection.
+    A (G)LM is fit to the categorical features and meaningful interactions.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+Imports: 
+    ggplot2,
+    vip,
+    magrittr,
+    dplyr,
+    pdp,
+    rlang,
+    tidyr,
+    tibble,
+    Ckmeans.1d.dp,
+    purrr,
+    foreach,
+    doParallel,
+    parallel
+Suggests: 
+    testthat (>= 2.1.0),
+    gbm,
+    knitr,
+    rmarkdown,
+    gridExtra
+RoxygenNote: 7.0.2
+VignetteBuilder: knitr
