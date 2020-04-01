@@ -11,6 +11,7 @@ Description: Implementation of the mAIDs procedure in R.
     Partial dependencies are used to obtain model insights and group feature levels.
     The segmentation happens in a data-driven way with built-in feature selection.
     A (G)LM is fit to the categorical features and meaningful interactions.
+URL: http://github.com/henckr/maidrr
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -37,3 +38,4 @@ Suggests:
     gridExtra
 RoxygenNote: 7.0.2
 VignetteBuilder: knitr
+BugReports: http://github.com/henckr/maidrr/issues
