@@ -2,10 +2,17 @@
 #'
 #' Segmentation of observations based on the grouping of feature effects.
 #'
-#' @param fx_vars A list of data frames containing the feature effects.
+#' @param fx_vars List of data frames containing the feature effects.
 #' @param data Data frame containing the original training data.
-#' @param lambda A numeric (same lambda for all features in \code{fx_vars}) or a
-#'   numeric vector of \code{length(fx_vars)} (for feature-specific lambdas).
+#' @param type String specifying the type of segmentation. Options are:
+#'   \describe{
+#'   \item{'ngroups'}{the number of groups to use for grouping the features.}
+#'   \item{'lambdas'}{optimal number of groups determined by penalized loss.}
+#'   }
+#' @param values The values for \code{ngroups} or \code{lambdas}. This can be a
+#'   numeric value (same is used for all features in \code{fx_vars}) or a named
+#'   numeric vector of \code{length(fx_vars)} (for feature-specific values). In
+#'   this case, the names must match the comment attributes in \code{fx_vars}.
 #' @return A tidy data frame (i.e., a "tibble" object) with the segmented data.
 #'   The grouped features all have a trailing underscore in their name.
 #' @examples
@@ -21,26 +28,32 @@
 #'                     interaction.depth = 3,
 #'                     shrinkage = 0.1)
 #' gbm_fun <- function(object, newdata) mean(predict(object, newdata, n.trees = object$n.trees, type = 'response'))
-#' gbm_fit %>% insights(vars = c('ageph', 'bm', 'coverage', 'fuel'),
+#' gbm_fit %>% insights(vars = c('ageph', 'bm', 'coverage', 'fuel', 'bm_fuel', 'ageph_coverage'),
 #'                      data = mtpl_be,
-#'                      interactions = 'auto',
-#'                      hcut = 0.7,
+#'                      interactions = 'user',
 #'                      pred_fun = gbm_fun) %>%
 #'             segmentation(data = mtpl_be,
-#'                          lambda = 0.01)
+#'                          type = 'ngroups',
+#'                          values = setNames(c(7, 8, 2, 2, 3, 4), c('ageph', 'bm', 'coverage', 'fuel', 'bm_fuel', 'ageph_coverage')))
 #' }
 #' @export
-segmentation <- function(fx_vars, data, lambda) {
+segmentation <- function(fx_vars, data, type, values) {
 
-  if (! length(lambda) %in% c(1, length(fx_vars))) stop('Lambda must either be a single numeric value of a numeric vector of the same length as fx_vars.')
-  if (length(lambda) == 1) lambda <- rep(lambda, length(fx_vars))
+  if (! type %in% c('ngroups', 'lambdas')) stop('The type of segmentation must be ngroups or lambdas.')
+
+  if (! length(values) %in% c(1, length(fx_vars))) stop('Values must either be a single numeric value of a vector of the same length as fx_vars.')
+  if (length(values) == 1) values <- setNames(rep(values, length(fx_vars)), unlist(lapply(fx_vars, comment)))
+  if (! length(intersect(unlist(lapply(fx_vars, comment)), names(values))) == length(fx_vars)) stop('The names in values must match the comment attributes of the effects in fx_vars.')
+
 
   # Group each effect and add the feature to the data in a categorical format
   for (i in seq_len(length(fx_vars))) {
     fx_var <- fx_vars[[i]]
-    n_grps <- fx_var %>% optimal_ngroups(lambda = lambda[i])
-    fx_grp <- fx_var %>% group_pd(ngroups = n_grps)
     var <- fx_var %>% comment
+    n_grps <- switch(type,
+                     'ngroups' = values[var],
+                     'lambdas' = fx_var %>% optimal_ngroups(lambda = values[var]))
+    fx_grp <- fx_var %>% group_pd(ngroups = n_grps)
 
     data <- data %>% dplyr::left_join(fx_grp[c(paste0('x', if (grepl('_', var)) 1:2), 'xgrp')],
                                       by = setNames(paste0('x', if (grepl('_', var)) 1:2), unlist(strsplit(var, '_')))) %>%
@@ -49,3 +62,4 @@ segmentation <- function(fx_vars, data, lambda) {
   }
   return(data)
 }
+

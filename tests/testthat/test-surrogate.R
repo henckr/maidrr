@@ -23,10 +23,11 @@ seg_dat <- gbm_fit %>% insights(vars = c('ageph', 'bm', 'coverage', 'fuel', 'bm_
                                 interactions = 'user',
                                 pred_fun = gbm_fun) %>%
   segmentation(data = mtpl_be,
-               lambda = 0.0001)
+               type = 'ngroups',
+               values = setNames(c(7, 9, 2, 2, 2, 2), c('ageph', 'bm', 'coverage', 'fuel', 'bm_fuel', 'ageph_coverage')))
 
 test_that('surrogate is fit properly when data is piped in', {
-  sur_glm <- seg_dat %>% surrogate(par_list = alist(formula = nclaims ~ ageph_ + bm_ + fuel_,
+  sur_glm <- seg_dat %>% surrogate(par_list = alist(formula = nclaims ~ ageph_ + bm_ + coverage_ + fuel_ + bm_fuel_ + ageph_coverage_,
                                                     family =  poisson(link = 'log'),
                                                     offset = log(expo)))
 
@@ -39,7 +40,7 @@ test_that('surrogate is fit properly when data is piped in', {
 
 
 test_that('surrogate is fit properly when data is inserted at a random location in the function call', {
-  sur_glm <- surrogate(par_list = alist(formula = nclaims ~ ageph_ + bm_ + fuel_,
+  sur_glm <- surrogate(par_list = alist(formula = nclaims ~ ageph_ + bm_ + coverage_ + fuel_ + bm_fuel_ + ageph_coverage_,
                                         family =  poisson(link = 'log'),
                                         offset = log(expo)),
                        data = seg_dat)

@@ -23,9 +23,10 @@ fx_vars <- gbm_fit %>% insights(vars = c('ageph', 'bm', 'coverage', 'fuel', 'bm_
                                 interactions = 'user',
                                 pred_fun = gbm_fun)
 
-test_that('output is of the expected format', {
+test_that('output is of the expected format when using lambdas', {
   data_segm <- fx_vars %>% segmentation(data = mtpl_be,
-                                        lambda = 0.01)
+                                        type = 'lambdas',
+                                        values = 0.0001)
 
   expect_is(data_segm, 'data.frame')
   expect_equal(nrow(data_segm), nrow(mtpl_be))
@@ -35,9 +36,36 @@ test_that('output is of the expected format', {
   expect_equal(sum(is.na(data_segm)), 0)
 })
 
+test_that('output is of the expected format when using ngroups', {
+  data_segm <- fx_vars %>% segmentation(data = mtpl_be,
+                                        type = 'ngroups',
+                                        values = setNames(c(7, 6, 2, 2, 3, 1), c('ageph', 'bm', 'coverage', 'fuel', 'bm_fuel', 'ageph_coverage')))
+
+  expect_is(data_segm, 'data.frame')
+  expect_equal(nrow(data_segm), nrow(mtpl_be))
+  expect_equal(ncol(data_segm), ncol(mtpl_be) + length(fx_vars))
+  expect_true(all(paste0(c('ageph', 'bm', 'coverage', 'fuel', 'bm_fuel', 'ageph_coverage'), '_') %in% names(data_segm)))
+  expect_true(all(sapply(paste0(c('ageph', 'bm', 'coverage', 'fuel', 'bm_fuel', 'ageph_coverage'), '_'), function(x) class(data_segm[[x]])) == 'factor'))
+  expect_true(all(sapply(paste0(c('ageph', 'bm', 'coverage', 'fuel', 'bm_fuel', 'ageph_coverage'), '_'), function(x) length(unique(data_segm[[x]]))) == c(7, 6, 2, 2, 3, 1)))
+  expect_equal(sum(is.na(data_segm)), 0)
+})
+
+
+test_that('an error is produced when the wrong type of segmentation is asked', {
+  expect_error(fx_vars %>% segmentation(data = mtpl_be,
+                                        type = 'something_else',
+                                        values = NULL),
+               'The type of segmentation must be ngroups or lambdas.')
+})
+
 
 test_that('an error is produced when lambda is specified in the wrong format', {
   expect_error(fx_vars %>% segmentation(data = mtpl_be,
-                                        lambda = c(0.01, 0.005, 0001)),
-               'Lambda must either be a single numeric value of a numeric vector of the same length as fx_vars.')
+                                        type = 'lambdas',
+                                        values = c(0.001, 0.00005, 0.1)),
+               'Values must either be a single numeric value of a vector of the same length as fx_vars.')
+  expect_error(fx_vars %>% segmentation(data = mtpl_be,
+                                        type = 'ngroups',
+                                        values = setNames(c(7, 6, 2, 2, 3, 1), c('ageph', 'bm', 'coverage', 'fuel', 'bm_fuel', 'ageph_power'))),
+               'The names in values must match the comment attributes of the effects in fx_vars.')
 })

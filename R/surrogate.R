@@ -27,7 +27,8 @@
 #'                      hcut = 0.7,
 #'                      pred_fun = gbm_fun) %>%
 #'             segmentation(data = mtpl_be,
-#'                          lambda = 0.01) %>%
+#'                          type = 'lambdas',
+#'                          values = 0.0001) %>%
 #'             surrogate(par_list = alist(formula = nclaims ~ ageph_ + power_,
 #'                                        family =  poisson(link = 'log'),
 #'                                        offset = log(expo)))

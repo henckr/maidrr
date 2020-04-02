@@ -172,9 +172,12 @@ Call `segmentation(fx_vars, data, lambda)` with arguments:
 
 * `fx_vars`: list of data frames containing the feature effects, preferably the output of `maidrr::insights`.
 * `data`: data frame containing the original training data.
-* `lambda`: numeric value or numeric vector for the penalty parameter lambda (see formula below).
-    + numeric value: same penalty parameter lambda is used for all features in `fx_vars`.
-    + numeric vector: feature-specific lambdas, must satisfy `length(lambda) == length(fx_vars)`.
+* `type`: string specifying the type of segmentation to perform. There are two options:
+    + `"ngroups"`: the number of groups to use for grouping the features.
+    + `"lambdas"`: the optimal number of groups is determined by the penalized loss (see formula below).
+* `values`: numeric value or named numeric vector with the value(s) for `ngroups` of `lambdas`.
+    + numeric value: same value is used for all features in `fx_vars`.
+    + named numeric vector: feature-specific values, must satisfy `length(values) == length(fx_vars)` and `names(values)` must be the same as the comment attributesof the effects in `fx_vars` (`unlist(lapply(fx_vars, comment))`).
 
 For any feature, let *n* be the unique number of observed levels/values in the data and *y* the calculated effect for each level/value. When the feature is split in *k* groups, let *g* represent the average value of *y* within the groups. A penalized loss function is defined as follows:
 $$ \frac{1}{n} \sum_{i=1}^{n} \left( y_i - g_i \right)^2 + \lambda \log(k)  \,. $$
@@ -183,7 +186,9 @@ The first part measures how well the effect *y* is approximated by the grouped v
 We segment the BE portfolio with the same penalty parameter for all features and interactions. The grouped features are added to the `data` with a trailing underscore in their column name. The number of groups says someting about the importance of each feature, but notice the difference in number of groups between the main and interaction effects. Due to the scale difference in `y` between the main and interaction effects (see comment earlier + penalized loss function formula), it is best to use distinct values of $\lambda$ for main and interaction effects.
 ```{r segmentation_be}
 gr_data_be <- fx_vars_be %>% segmentation(data = mtpl_be,
-                                          lambda = 0.0001)
+                                          type = 'ngroups',
+                                          values = setNames(c(7, 4, 9, 3, 2, 2, 2, 1, 1, 2, 3, 4, 2),
+                                                            unlist(lapply(fx_vars_be, comment))))
 head(gr_data_be)
 gr_data_be %>% 
   dplyr::select(dplyr::ends_with('_')) %>% 
@@ -193,9 +198,10 @@ gr_data_be %>%
 We segment the FR portfolio by different $\lambda$ values, one for the main effects and a smaller one for the interaction:
 ```{r segmentation_fr}
 gr_data_fr <- fx_vars_fr %>% segmentation(data = mtpl_fr,
-                                          lambda = ifelse(grepl('_', names(fx_vars_fr)),
-                                                          0.00001,
-                                                          0.0001))
+                                          type = 'lambdas',
+                                          values = setNames(ifelse(grepl('_', names(fx_vars_fr)),
+                                                                   0.00001, 0.0001),
+                                                            unlist(lapply(fx_vars_fr, comment))))
 gr_data_fr %>% 
   dplyr::select(dplyr::ends_with('_')) %>% 
   dplyr::summarise_all(dplyr::n_distinct)

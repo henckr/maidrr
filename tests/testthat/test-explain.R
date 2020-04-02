@@ -18,15 +18,15 @@ gbm_fit <- gbm::gbm(as.formula(paste('nclaims ~',
                     shrinkage = 0.1)
 gbm_fun <- function(object, newdata) mean(predict(object, newdata, n.trees = object$n.trees, type = 'response'))
 
-seg_dat <- gbm_fit %>% insights(vars = c('ageph', 'bm', 'coverage', 'fuel'),
+seg_dat <- gbm_fit %>% insights(vars = c('ageph', 'bm', 'coverage', 'fuel', 'ageph_bm'),
                                 data = mtpl_be,
-                                interactions = 'auto',
-                                hcut = 0.7,
+                                interactions = 'user',
                                 pred_fun = gbm_fun) %>%
                        segmentation(data = mtpl_be,
-                                    lambda = 0.0001)
+                                    type = 'ngroups',
+                                    values = setNames(c(6, 8, 2, 2, 2), c('ageph', 'bm', 'coverage', 'fuel', 'ageph_bm')))
 
-sur_glm <- seg_dat %>% surrogate(par_list = alist(formula = nclaims ~ ageph_ + bm_ + fuel_ + ageph_bm_,
+sur_glm <- seg_dat %>% surrogate(par_list = alist(formula = nclaims ~ ageph_ + bm_ + coverage_ + fuel_ + ageph_bm_,
                                                   family =  poisson(link = 'log'),
                                                   offset = log(expo)))
 
