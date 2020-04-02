@@ -2,7 +2,7 @@
 inst/doc
 
 *.Rproj
-^maidrr.png$
+^maidrr\.png$
 vignettes/*_cache/
 vignettes/*_files/
 vignettes/*.R
