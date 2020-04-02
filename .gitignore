@@ -1,5 +1,10 @@
 .Rproj.user
 inst/doc
+*.png
+vignettes/*_cache/
+vignettes/*_files/
+vignettes/*.R
+.DS_Store
 
 # Created by https://www.gitignore.io/api/r
 # Edit at https://www.gitignore.io/?templates=r
