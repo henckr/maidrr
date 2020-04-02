@@ -69,13 +69,12 @@ These operations are designed in a way that allows for piping via `%>%` from `ma
 
 
 ### Insights from the black box
-Call `insights(mfit, vars, data, interactions = 'auto', hcut = 0.5, pred_fun = NULL)` with arguments:
+Call `insights(mfit, vars, data, interactions = 'user', hcut = 0.5, pred_fun = NULL)` with arguments:
 
 * `mfit`: fitted model object (e.g., a "gbm" or "randomForest" object).
 * `vars`: character vector specifying the features to get insights on.
 * `data`: data frame containing the original training data.
 * `interactions`: string specifying how to deal with interaction effects (only two-way interactions allowed).
-    + `"none"`: interaction effects between features are not included in the output.
     + `"user"`: specify the two-way interactions yourself in `vars` as the string `"var1_var2"`. For example, to obtain the interaction effect between the age of the policyholder and power of the car, specify the following three components in `vars`: `"ageph"`, `"power"` and `"ageph_power"`.
     + `"auto"`: automatic selection of the most important two-way interactions, determined by `hcut`.
 * `hcut`: numeric in the range [0,1] specifying the cut-off value for the normalized cumulative H-statistic over all two-way interactions between the features in `vars`. In a nutshell: 1) Friedman's H-statistic, measuring interaction strength, is calculated for all two-way interactions between the features in `vars`. 2) Interactions are ordered from most to least important and the normalized cumulative sum of the H-statistic is calculated. 3) The minimal set of interactions which exceeds the value of `hcut` is retained in the output.

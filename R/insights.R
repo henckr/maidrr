@@ -7,7 +7,6 @@
 #' @param data Data frame containing the original training data.
 #' @param interactions A string specifying how to deal with interaction effects:
 #'   \describe{
-#'   \item{'none'}{no interactions between features included in the output.}
 #'   \item{'user'}{specify interactions in \code{vars} as \code{"var1_var2"}.}
 #'   \item{'auto'}{automatic selection of interactions based on \code{hcut}.}
 #'   }
@@ -44,24 +43,22 @@
 #'                      pred_fun = gbm_fun)
 #' }
 #' @export
-insights <- function(mfit, vars, data, interactions = 'auto', hcut = 0.5, pred_fun = NULL) {
+insights <- function(mfit, vars, data, interactions = 'user', hcut = 0.5, pred_fun = NULL) {
 
   vars_main <- vars[! grepl('_', vars)]
   if (! all(vars_main %in% names(data))) stop('Some features specified in vars can not be found in the data.')
 
-  if (interactions == 'none') {
-    vars_intr <- character()
-    if (length(vars[grepl('_', vars)]) > 0) warning('Interactions specified in vars are ignored when interactions = "none".')
+  if (interactions == 'user') {
+    vars_intr <- vars[grepl('_', vars)]
+    if (! all(unique(unlist(sapply(vars_intr, function(x) strsplit(x, '_')))) %in% vars_main)) stop('Each feature that is included in an interaction should also be present as a main effect.')
   }
+
   if (interactions == 'auto') {
     vars_intr <- apply(combn(vars_main, 2), 2, function(x) paste(x, collapse = '_'))
     if (length(vars[grepl('_', vars)]) > 0) warning('Interactions specified in vars are ignored when interactions = "auto".')
     if (hcut < 0 | hcut > 1) stop('The parameter hcut must lie within the range [0, 1].')
   }
-  if (interactions == 'user') {
-    vars_intr <- vars[grepl('_', vars)]
-    if (! all(unique(unlist(sapply(vars_intr, function(x) strsplit(x, '_')))) %in% vars_main)) stop('Each feature that is included in an interaction should also be present as a main effect.')
-  }
+
 
   # Get the effects for all features
   vars <- c(vars_main, vars_intr)
@@ -90,7 +87,7 @@ insights <- function(mfit, vars, data, interactions = 'auto', hcut = 0.5, pred_f
   }
 
   # Get the pure interaction effects
-  if( interactions %in% c('auto', 'user')) {
+  if( length(vars_intr) > 0) {
     fx_vars[vars_intr] <- fx_vars[vars_intr] %>% lapply(function(fx) interaction_pd(fx, fx_vars[vars_main]))
   }
 

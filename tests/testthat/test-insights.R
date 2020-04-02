@@ -45,19 +45,21 @@ test_that('an error is produced when features are not present in the data', {
 })
 
 
-test_that('interactions are handled properly when interactions = "none"', {
-  expect_warning(gbm_fit %>% insights(vars = c('ageph', 'bm', 'coverage', 'fuel', 'bm_fuel', 'ageph_coverage'),
-                                      data = mtpl_be,
-                                      interactions = 'none',
-                                      pred_fun = gbm_fun),
-                 'Interactions specified in vars are ignored when interactions = "none".')
+test_that('it works without interactions when interactions = "user"', {
+  mdl_insights <- gbm_fit %>% insights(vars = c('ageph', 'bm', 'coverage', 'fuel'),
+                                       data = mtpl_be,
+                                       interactions = 'user',
+                                       pred_fun = gbm_fun)
 
-  mdl_insights <- suppressWarnings(gbm_fit %>% insights(vars = c('ageph', 'bm', 'coverage', 'fuel', 'bm_fuel', 'ageph_coverage'),
-                                                        data = mtpl_be,
-                                                        interactions = 'none',
-                                                        pred_fun = gbm_fun))
-  expect_equal(length(mdl_insights), 4)
   expect_false(any(grepl('_', unlist(lapply(mdl_insights, comment)))))
+  expect_is(mdl_insights, 'list')
+  expect_equal(length(mdl_insights), 4)
+  expect_is(mdl_insights[[1]], 'tbl_df')
+  expect_true(all(unlist(lapply(mdl_insights, comment)) %in% c('ageph', 'bm', 'coverage', 'fuel')))
+  expect_is(mdl_insights[['ageph']]$x, 'integer')
+  expect_is(mdl_insights[['fuel']]$x, 'factor')
+  expect_equal(sum(unlist(lapply(mdl_insights, function(i) sum(is.na(i))))), 0)
+  expect_true(all(unlist(lapply(mdl_insights, function(i) sum(i$w))) == nrow(mtpl_be)))
 })
 
 
