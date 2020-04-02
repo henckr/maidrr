@@ -335,7 +335,7 @@ Call `autotune(fx_vars, data, target, lambdas = as.vector(outer(seq(1, 10, 0.1),
 
 
 
-```{r autotune_be}
+```{r autotune_be, eval = FALSE}
 set.seed(5678)
 tune_be <- fx_vars_be %>% autotune(data = mtpl_be,
                                    target = 'nclaims',
@@ -349,8 +349,17 @@ tune_be <- fx_vars_be %>% autotune(data = mtpl_be,
 tune_be
 ```
 
+
+
+```{r lambda_grid}
+lmbd_grid <- maidrr::lambda_grid(fx_vars = fx_vars_be, lambda_range = as.vector(outer(seq(1, 10, 0.1), 10^(-7:3))))
+lmbd_grid
+length(unique(lmbd_grid$lambda_main))
+length(unique(lmbd_grid$lambda_intr))
+```
+
 ```{r autotune_be2}
-tune_be %>% dplyr::slice(1) %>% 
+lmbd_grid %>% dplyr::slice(1) %>% 
            unlist(., use.names=TRUE)
 ```
 
