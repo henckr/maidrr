@@ -1,6 +1,8 @@
 .Rproj.user
 inst/doc
-^maidrr\.png$
+
+*.Rproj
+^maidrr.png$
 vignettes/*_cache/
 vignettes/*_files/
 vignettes/*.R
@@ -25,7 +27,6 @@ vignettes/*.R
 # Output files from R CMD check
 /*.Rcheck/
 # RStudio files
-*.Rproj
 .Rproj.user/
 # produced vignettes
 vignettes/*.html
