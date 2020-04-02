@@ -4,15 +4,23 @@
 \alias{segmentation}
 \title{Segmentation of the data}
 \usage{
-segmentation(fx_vars, data, lambda)
+segmentation(fx_vars, data, type, values)
 }
 \arguments{
-\item{fx_vars}{A list of data frames containing the feature effects.}
+\item{fx_vars}{List of data frames containing the feature effects.}
 
 \item{data}{Data frame containing the original training data.}
 
-\item{lambda}{A numeric (same lambda for all features in \code{fx_vars}) or a
-numeric vector of \code{length(fx_vars)} (for feature-specific lambdas).}
+\item{type}{String specifying the type of segmentation. Options are:
+\describe{
+\item{'ngroups'}{the number of groups to use for grouping the features.}
+\item{'lambdas'}{optimal number of groups determined by penalized loss.}
+}}
+
+\item{values}{The values for \code{ngroups} or \code{lambdas}. This can be a
+numeric value (same is used for all features in \code{fx_vars}) or a named
+numeric vector of \code{length(fx_vars)} (for feature-specific values). In
+this case, the names must match the comment attributes in \code{fx_vars}.}
 }
 \value{
 A tidy data frame (i.e., a "tibble" object) with the segmented data.
@@ -34,12 +42,12 @@ gbm_fit <- gbm::gbm(as.formula(paste('nclaims ~',
                     interaction.depth = 3,
                     shrinkage = 0.1)
 gbm_fun <- function(object, newdata) mean(predict(object, newdata, n.trees = object$n.trees, type = 'response'))
-gbm_fit \%>\% insights(vars = c('ageph', 'bm', 'coverage', 'fuel'),
+gbm_fit \%>\% insights(vars = c('ageph', 'bm', 'coverage', 'fuel', 'bm_fuel', 'ageph_coverage'),
                      data = mtpl_be,
-                     interactions = 'auto',
-                     hcut = 0.7,
+                     interactions = 'user',
                      pred_fun = gbm_fun) \%>\%
             segmentation(data = mtpl_be,
-                         lambda = 0.01)
+                         type = 'ngroups',
+                         values = setNames(c(7, 8, 2, 2, 3, 4), c('ageph', 'bm', 'coverage', 'fuel', 'bm_fuel', 'ageph_coverage')))
 }
 }

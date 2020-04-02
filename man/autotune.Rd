@@ -5,8 +5,10 @@
 \title{Automatic tuning}
 \usage{
 autotune(
-  fx_vars,
+  mfit,
+  vars,
   data,
+  pred_fun = NULL,
   target,
   lambdas = as.vector(outer(seq(1, 10, 0.1), 10^(-7:3))),
   nfolds = 5,
@@ -17,9 +19,6 @@ autotune(
 )
 }
 \arguments{
-\item{fx_vars}{A list of data frames containing the feature effects. These
-can be obtained by applying \code{\link{insights}} on your model fit.}
-
 \item{data}{Data frame containing the original training data.}
 
 \item{target}{A string specifying the target (or response) variable to model.}
@@ -56,6 +55,9 @@ supplied to \code{glm_par}. Examples already included in the package:
 \item{ncores}{An integer specifying the number of cores to use. The default
 \code{ncores = -1} uses all the available physical cores (not threads), as
 determined by \code{parallel::detectCores(logical = 'FALSE')}.}
+
+\item{fx_vars}{A list of data frames containing the feature effects. These
+can be obtained by applying \code{\link{insights}} on your model fit.}
 }
 \value{
 A tidy data frame (i.e., a "tibble" object) with the cross-validation

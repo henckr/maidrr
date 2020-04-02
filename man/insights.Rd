@@ -4,7 +4,7 @@
 \alias{insights}
 \title{Model insights}
 \usage{
-insights(mfit, vars, data, interactions = "auto", hcut = 0.5, pred_fun = NULL)
+insights(mfit, vars, data, interactions = "user", hcut = 0.5, pred_fun = NULL)
 }
 \arguments{
 \item{mfit}{A fitted model object (e.g., a "gbm" or "randomForest" object).}
@@ -15,7 +15,6 @@ insights(mfit, vars, data, interactions = "auto", hcut = 0.5, pred_fun = NULL)
 
 \item{interactions}{A string specifying how to deal with interaction effects:
 \describe{
-\item{'none'}{no interactions between features included in the output.}
 \item{'user'}{specify interactions in \code{vars} as \code{"var1_var2"}.}
 \item{'auto'}{automatic selection of interactions based on \code{hcut}.}
 }}
