@@ -4,7 +4,15 @@
 \alias{insights}
 \title{Model insights}
 \usage{
-insights(mfit, vars, data, interactions = "user", hcut = 0.5, pred_fun = NULL)
+insights(
+  mfit,
+  vars,
+  data,
+  interactions = "user",
+  hcut = 0.5,
+  pred_fun = NULL,
+  fx_in = NULL
+)
 }
 \arguments{
 \item{mfit}{A fitted model object (e.g., a "gbm" or "randomForest" object).}
@@ -27,6 +35,14 @@ most to least important, between the features in \code{var}. Note that
 
 \item{pred_fun}{Optional prediction function for the model in \code{mfit} that
 requires two arguments: \code{object} and \code{newdata}.}
+
+\item{fx_in}{Optional named list of data frames containing feature effects
+for features in \code{vars} that are already calculated beforehand, to avoid
+having to calculate these again. A possible use case is to supply the main
+effects such that only the interaction effects still need to be calculated.
+Precalculated interactions are ignored when \code{interactions = "auto"},
+but can be supplied when \code{interactions = "user"}. In case of the latter,
+it is important to make sure that you supply the pure interaction effects.}
 }
 \value{
 A list of tidy data frames (i.e., "tibble" objects), each containing

@@ -6,10 +6,11 @@
 \usage{
 autotune(
   mfit,
-  vars,
   data,
-  pred_fun = NULL,
+  vars,
   target,
+  hcut = 0.75,
+  pred_fun = NULL,
   lambdas = as.vector(outer(seq(1, 10, 0.1), 10^(-7:3))),
   nfolds = 5,
   strat_vars = NULL,
@@ -19,50 +20,66 @@ autotune(
 )
 }
 \arguments{
+\item{mfit}{Fitted model object (e.g., a "gbm" or "randomForest" object).}
+
 \item{data}{Data frame containing the original training data.}
 
-\item{target}{A string specifying the target (or response) variable to model.}
+\item{vars}{Character vector specifying the features in \code{data} to use.}
 
-\item{lambdas}{A numeric vector with the possible lambda values to explore.
-The search grid is created automatically via \code{\link{lambda_grid}}.
-This grid contains only those values of lambda that result in a unique
-grouping of the full set of features. If both main and interaction effects
-are present in \code{fx_vars}, a seperate grid is generated and all the
-pairwise combinations are evaluated in a cartesian grid search.}
+\item{target}{String specifying the target (or response) variable to model.}
 
-\item{nfolds}{An integer for the number of folds in K-fold cross-validation.}
+\item{hcut}{Numeric in the range [0,1] specifying the cut-off value for the
+normalized cumulative H-statistic over all two-way interactions. See the
+documentation of \code{\link{insights}} for the details on this argument.
+Setting \code{hcut = -1} will only consider main effects in the tuning.}
 
-\item{strat_vars}{A character (vector) specifying the feature(s) to use for
+\item{pred_fun}{Optional prediction function to calculate feature effects
+for the model in \code{mfit}. Requires two arguments: \code{object} and
+\code{newdata}. See \code{\link[pdp:partial]{pdp::partial}} for the details
+(\url{https://bgreenwell.github.io/pdp/articles/pdp-extending.html}).}
+
+\item{lambdas}{Numeric vector with the possible lambda values to explore.
+The search grid is created automatically via \code{\link{lambda_grid}}
+such that it contains only those values of lambda that result in a unique
+grouping of the full set of features. A seperate grid is generated for
+main and interaction effects, due to the scale difference in both types.}
+
+\item{nfolds}{Integer for the number of folds in K-fold cross-validation.}
+
+\item{strat_vars}{Character (vector) specifying the feature(s) to use for
 stratified sampling. The default NULL implies no stratification is applied.}
 
-\item{glm_par}{A named list, constructed via \code{\link{alist}}, containing
+\item{glm_par}{Named list, constructed via \code{\link{alist}}, containing
 arguments to be passed on to \code{\link[stats]{glm}}. Examples are:
 \code{family}, \code{weights} or \code{offset}. Note that \code{formula}
 will be ignored as the GLM formula is determined by the specified
 \code{target} and the automatic feature selection in the tuning process.}
 
-\item{err_fun}{An error function to calculate the prediction errors on the
+\item{err_fun}{Error function to calculate the prediction errors on the
 validation folds. This must be an R function which outputs a single number
 and takes two vectors \code{y_pred} and \code{y_true} as input for the
 predicted and true target values respectively. An additional input vector
 \code{w_case} is allowed to use case weights in the error function. The
 weights are determined automatically based on the \code{weights} field
 supplied to \code{glm_par}. Examples already included in the package:
-\describe{ \item{mse}{mean squared error loss function.}
+\describe{ \item{mse}{mean squared error loss function (default).}
 \item{wgt_mse}{weighted mean squared error loss function.}
 \item{poi_dev}{Poisson deviance loss function.} }}
 
-\item{ncores}{An integer specifying the number of cores to use. The default
+\item{ncores}{Integer specifying the number of cores to use. The default
 \code{ncores = -1} uses all the available physical cores (not threads), as
 determined by \code{parallel::detectCores(logical = 'FALSE')}.}
-
-\item{fx_vars}{A list of data frames containing the feature effects. These
-can be obtained by applying \code{\link{insights}} on your model fit.}
 }
 \value{
-A tidy data frame (i.e., a "tibble" object) with the cross-validation
-results. The column \code{cv_err} contains the cross-validated error, while
-the columns \code{1:nfolds} contain the error on the validation folds.
+List with four elements: \describe{ \item{slct_feat}{named vector
+containing the selected features (names) and the optimal number of groups
+for each feature (values).} \item{best_surr}{the optimal GLM surrogate,
+which is fit to all observations in \code{data}. The segmented data can be
+obtained via the \code{$data} attribute of the GLM fit.} \item{tune_main}{
+the cross-validation results for the main effects as a tidy data frame.
+The column \code{cv_err} contains the cross-validated error, while
+the columns \code{1:nfolds} contain the error on the validation folds.}
+\item{tune_intr}{cross-validation results for the interaction effects.}}
 }
 \description{
 Automated tuning process for the penalty parameter lambda, with built-in
@@ -82,14 +99,12 @@ gbm_fit <- gbm::gbm(as.formula(paste('nclaims ~',
                     interaction.depth = 3,
                     shrinkage = 0.1)
 gbm_fun <- function(object, newdata) mean(predict(object, newdata, n.trees = object$n.trees, type = 'response'))
-gbm_fit \%>\% insights(vars = c('ageph', 'bm', 'coverage', 'fuel'),
-                     data = mtpl_be,
-                     interactions = 'auto',
-                     hcut = 0.7,
-                     pred_fun = gbm_fun) \%>\%
-            autotune(data = mtpl_be,
+gbm_fit \%>\% autotune(data = mtpl_be,
+                     vars = c('ageph', 'bm', 'coverage', 'fuel', 'sex', 'fleet', 'use'),
                      target = 'nclaims',
-                     lambdas = as.vector(outer(seq(1, 10, 1), 10^(-3:-1))),
+                     hcut = 0.75,
+                     pred_fun = gbm_fun,
+                     lambdas = as.vector(outer(seq(1, 10, 1), 10^(-6:-2))),
                      nfolds = 5,
                      strat_vars = c('nclaims', 'expo'),
                      glm_par = alist(family = poisson(link = 'log'),
