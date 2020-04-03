@@ -17,6 +17,13 @@
 #'   \code{hcut = 1} will add all possible two-way interactions.
 #' @param pred_fun Optional prediction function for the model in \code{mfit} that
 #' requires two arguments: \code{object} and \code{newdata}.
+#' @param fx_in Optional named list of data frames containing feature effects
+#' for features in \code{vars} that are already calculated beforehand, to avoid
+#' having to calculate these again. A possible use case is to supply the main
+#' effects such that only the interaction effects still need to be calculated.
+#' Precalculated interactions are ignored when \code{interactions = "auto"},
+#' but can be supplied when \code{interactions = "user"}. In case of the latter,
+#' it is important to make sure that you supply the pure interaction effects.
 #' @return A list of tidy data frames (i.e., "tibble" objects), each containing
 #' feature effects for the features in \code{var}, possibly with interactions.
 #' @examples
@@ -43,7 +50,7 @@
 #'                      pred_fun = gbm_fun)
 #' }
 #' @export
-insights <- function(mfit, vars, data, interactions = 'user', hcut = 0.5, pred_fun = NULL) {
+insights <- function(mfit, vars, data, interactions = 'user', hcut = 0.5, pred_fun = NULL, fx_in = NULL) {
 
   vars_main <- vars[! grepl('_', vars)]
   if (! all(vars_main %in% names(data))) stop('Some features specified in vars can not be found in the data.')
@@ -54,8 +61,10 @@ insights <- function(mfit, vars, data, interactions = 'user', hcut = 0.5, pred_f
   }
 
   if (interactions == 'auto') {
-    vars_intr <- apply(combn(vars_main, 2), 2, function(x) paste(x, collapse = '_'))
     if (length(vars[grepl('_', vars)]) > 0) warning('Interactions specified in vars are ignored when interactions = "auto".')
+    vars_intr <- apply(combn(vars_main, 2), 2, function(x) paste(x, collapse = '_'))
+    if (length(fx_in[grepl('_', names(fx_in))]) > 0) warning('Interactions specified in fx_in are ignored when interactions = "auto".')
+    fx_in <- fx_in[! grepl('_', names(fx_in))]
     if (hcut < 0 | hcut > 1) stop('The parameter hcut must lie within the range [0, 1].')
   }
 
@@ -63,7 +72,8 @@ insights <- function(mfit, vars, data, interactions = 'user', hcut = 0.5, pred_f
   # Get the effects for all features
   vars <- c(vars_main, vars_intr)
   fx_vars <- setNames(vector('list', length = length(vars)), vars)
-  for (v in vars) {
+  fx_vars[names(fx_in)] <- fx_in
+  for (v in setdiff(vars, names(fx_in))) {
     fx_vars[[v]] <- get_pd(mfit = mfit,
                            var = v,
                            grid = switch(as.character(grepl('_', v)),
@@ -88,7 +98,7 @@ insights <- function(mfit, vars, data, interactions = 'user', hcut = 0.5, pred_f
 
   # Get the pure interaction effects
   if( length(vars_intr) > 0) {
-    fx_vars[vars_intr] <- fx_vars[vars_intr] %>% lapply(function(fx) interaction_pd(fx, fx_vars[vars_main]))
+    fx_vars[setdiff(vars_intr, names(fx_in))] <- fx_vars[setdiff(vars_intr, names(fx_in))] %>% lapply(function(fx) interaction_pd(fx, fx_vars[vars_main]))
   }
 
   return(fx_vars)

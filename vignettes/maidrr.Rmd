@@ -81,6 +81,7 @@ Call `insights(mfit, vars, data, interactions = 'user', hcut = 0.5, pred_fun = N
     + `hcut = 0`: only retain the single most important interaction.
     + `hcut = 1`: retain all possible two-way interactions.
 * `pred_fun`: optional prediction function for the model in `mfit` to calculate feature effects, which should be of the format `function(object, newdata) mean(predict(object, newdata, ...))`. See the argument `pred.fun` in the `pdp::partial` function, on which `maidrr` relies to calculate model insights. This function allows to calculate effects for model classes which are not supported by `pdp::partial`.
+* `fx_in`: optional named list of data frames containing feature effects for features in `vars` that are already calculated beforehand, to avoid having to calculate these again. A possible use case is to supply the main effects such that only the interaction effects still need to be calculated. Precalculated interactions are ignored when `interactions = "auto"`, but can be supplied when `interactions = "user"`. In case of the latter, it is important to make sure that you supply the pure interaction effects.
 
 To illustrate the use of the argument `pred_fun` we define the following function for our GBMs:
 ```{r gbm_fun}

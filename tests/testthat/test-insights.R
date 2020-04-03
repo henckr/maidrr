@@ -111,3 +111,68 @@ test_that('interactions are handled properly when interactions = "auto"', {
   expect_equal(length(mdl_insights), 6)
   expect_equal(sum(grepl('_', unlist(lapply(mdl_insights, comment)))), 3)
 })
+
+
+test_that('effects supplied in fx_in are handled properly when interactions = "user"', {
+
+  fx_pre <- gbm_fit %>% insights(vars = c('ageph', 'bm', 'coverage', 'fuel', 'bm_fuel', 'ageph_coverage'),
+                                 data = mtpl_be,
+                                 interactions = 'user',
+                                 pred_fun = gbm_fun)
+
+  mdl_insights <- gbm_fit %>% insights(vars = c('ageph', 'bm', 'coverage', 'fuel', 'bm_fuel', 'ageph_coverage'),
+                                       data = mtpl_be,
+                                       interactions = 'user',
+                                       pred_fun = gbm_fun,
+                                       fx_in = fx_pre)
+
+  expect_true(all(unlist(lapply(c('ageph', 'bm', 'coverage', 'fuel', 'bm_fuel', 'ageph_coverage'), function(v) all(fx_pre[[v]] == mdl_insights[[v]])))))
+  expect_is(mdl_insights, 'list')
+  expect_equal(length(mdl_insights), 6)
+  expect_is(mdl_insights[[1]], 'tbl_df')
+  expect_true(all(unlist(lapply(mdl_insights, comment)) %in% c('ageph', 'bm', 'coverage', 'fuel', 'bm_fuel', 'ageph_coverage')))
+  expect_equal(sum(unlist(lapply(mdl_insights, function(i) sum(is.na(i))))), 0)
+  expect_true(all(unlist(lapply(mdl_insights, function(i) sum(i$w))) == nrow(mtpl_be)))
+
+  mdl_insights <- gbm_fit %>% insights(vars = c('ageph', 'bm', 'coverage', 'fuel', 'bm_fuel', 'ageph_coverage'),
+                                       data = mtpl_be,
+                                       interactions = 'user',
+                                       pred_fun = gbm_fun,
+                                       fx_in = fx_pre[c('ageph', 'bm', 'coverage')])
+
+  expect_true(all(unlist(lapply(c('ageph', 'bm', 'coverage'), function(v) all(fx_pre[[v]] == mdl_insights[[v]])))))
+  expect_is(mdl_insights, 'list')
+  expect_equal(length(mdl_insights), 6)
+  expect_is(mdl_insights[[1]], 'tbl_df')
+  expect_true(all(unlist(lapply(mdl_insights, comment)) %in% c('ageph', 'bm', 'coverage', 'fuel', 'bm_fuel', 'ageph_coverage')))
+  expect_equal(sum(unlist(lapply(mdl_insights, function(i) sum(is.na(i))))), 0)
+  expect_true(all(unlist(lapply(mdl_insights, function(i) sum(i$w))) == nrow(mtpl_be)))
+})
+
+
+test_that('effects supplied in fx_in are handled properly when interactions = "auto"', {
+  fx_pre <- gbm_fit %>% insights(vars = c('ageph', 'bm', 'coverage', 'fuel', 'bm_fuel', 'ageph_coverage'),
+                                 data = mtpl_be,
+                                 interactions = 'user',
+                                 pred_fun = gbm_fun)
+
+  expect_warning(gbm_fit %>% insights(vars = c('bm', 'coverage', 'fuel'),
+                                      data = mtpl_be,
+                                      interactions = 'auto',
+                                      pred_fun = gbm_fun,
+                                      fx_in = fx_pre),
+                 'Interactions specified in fx_in are ignored when interactions = "auto".')
+
+  mdl_insights <- gbm_fit %>% insights(vars = c('bm', 'coverage', 'fuel'),
+                                       data = mtpl_be,
+                                       interactions = 'auto',
+                                       pred_fun = gbm_fun,
+                                       fx_in = fx_pre[c('bm', 'coverage', 'fuel')])
+
+  expect_is(mdl_insights, 'list')
+  expect_equal(length(mdl_insights), 4)
+  expect_is(mdl_insights[[1]], 'tbl_df')
+  expect_true(all(unlist(lapply(mdl_insights, comment)) %in% c('bm', 'coverage', 'fuel', 'bm_fuel')))
+  expect_equal(sum(unlist(lapply(mdl_insights, function(i) sum(is.na(i))))), 0)
+  expect_true(all(unlist(lapply(mdl_insights, function(i) sum(i$w))) == nrow(mtpl_be)))
+})
