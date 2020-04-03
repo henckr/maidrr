@@ -2,21 +2,23 @@
 #'
 #' Obtain insights from a black box model in the form of feature effects.
 #'
-#' @param mfit A fitted model object (e.g., a "gbm" or "randomForest" object).
-#' @param vars A character vector specifying the features to get insights on.
+#' @param mfit Fitted model object (e.g., a "gbm" or "randomForest" object).
+#' @param vars Character vector specifying the features to get insights on.
 #' @param data Data frame containing the original training data.
-#' @param interactions A string specifying how to deal with interaction effects:
+#' @param interactions String specifying how to deal with interaction effects:
 #'   \describe{
 #'   \item{'user'}{specify interactions in \code{vars} as \code{"var1_var2"}.}
 #'   \item{'auto'}{automatic selection of interactions based on \code{hcut}.}
 #'   }
-#' @param hcut A numeric in the range \[0,1\] specifying the cut-off value for the
+#' @param hcut Numeric in the range \[0,1\] specifying the cut-off value for the
 #'   normalized cumulative H-statistic over all two-way interactions, ordered from
 #'   most to least important, between the features in \code{var}. Note that
 #'   \code{hcut = 0} will add the single most important interaction, while
 #'   \code{hcut = 1} will add all possible two-way interactions.
-#' @param pred_fun Optional prediction function for the model in \code{mfit} that
-#' requires two arguments: \code{object} and \code{newdata}.
+#' @param pred_fun Optional prediction function to calculate feature effects
+#'   for the model in \code{mfit}. Requires two arguments: \code{object} and
+#'   \code{newdata}. See \code{\link[pdp:partial]{pdp::partial}} for the details
+#'   (\url{https://bgreenwell.github.io/pdp/articles/pdp-extending.html}).
 #' @param fx_in Optional named list of data frames containing feature effects
 #' for features in \code{vars} that are already calculated beforehand, to avoid
 #' having to calculate these again. A possible use case is to supply the main
@@ -50,7 +52,7 @@
 #'                      pred_fun = gbm_fun)
 #' }
 #' @export
-insights <- function(mfit, vars, data, interactions = 'user', hcut = 0.5, pred_fun = NULL, fx_in = NULL) {
+insights <- function(mfit, vars, data, interactions = 'user', hcut = 0.75, pred_fun = NULL, fx_in = NULL) {
 
   vars_main <- vars[! grepl('_', vars)]
   if (! all(vars_main %in% names(data))) stop('Some features specified in vars can not be found in the data.')

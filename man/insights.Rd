@@ -9,32 +9,34 @@ insights(
   vars,
   data,
   interactions = "user",
-  hcut = 0.5,
+  hcut = 0.75,
   pred_fun = NULL,
   fx_in = NULL
 )
 }
 \arguments{
-\item{mfit}{A fitted model object (e.g., a "gbm" or "randomForest" object).}
+\item{mfit}{Fitted model object (e.g., a "gbm" or "randomForest" object).}
 
-\item{vars}{A character vector specifying the features to get insights on.}
+\item{vars}{Character vector specifying the features to get insights on.}
 
 \item{data}{Data frame containing the original training data.}
 
-\item{interactions}{A string specifying how to deal with interaction effects:
+\item{interactions}{String specifying how to deal with interaction effects:
 \describe{
 \item{'user'}{specify interactions in \code{vars} as \code{"var1_var2"}.}
 \item{'auto'}{automatic selection of interactions based on \code{hcut}.}
 }}
 
-\item{hcut}{A numeric in the range [0,1] specifying the cut-off value for the
+\item{hcut}{Numeric in the range [0,1] specifying the cut-off value for the
 normalized cumulative H-statistic over all two-way interactions, ordered from
 most to least important, between the features in \code{var}. Note that
 \code{hcut = 0} will add the single most important interaction, while
 \code{hcut = 1} will add all possible two-way interactions.}
 
-\item{pred_fun}{Optional prediction function for the model in \code{mfit} that
-requires two arguments: \code{object} and \code{newdata}.}
+\item{pred_fun}{Optional prediction function to calculate feature effects
+for the model in \code{mfit}. Requires two arguments: \code{object} and
+\code{newdata}. See \code{\link[pdp:partial]{pdp::partial}} for the details
+(\url{https://bgreenwell.github.io/pdp/articles/pdp-extending.html}).}
 
 \item{fx_in}{Optional named list of data frames containing feature effects
 for features in \code{vars} that are already calculated beforehand, to avoid

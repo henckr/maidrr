@@ -34,13 +34,12 @@ gbm_fit <- gbm::gbm(as.formula(paste('nclaims ~',
 gbm_fun <- function(object, newdata) mean(predict(object, newdata, n.trees = object$n.trees, type = 'response'))
 gbm_fit \%>\% insights(vars = c('ageph', 'bm', 'coverage', 'fuel'),
                      data = mtpl_be,
-                     interactions = 'auto',
-                     hcut = 0.7,
+                     interactions = 'user',
                      pred_fun = gbm_fun) \%>\%
             segmentation(data = mtpl_be,
                          type = 'lambdas',
-                         values = 0.0001) \%>\%
-            surrogate(par_list = alist(formula = nclaims ~ ageph_ + power_,
+                         values = 0.00001) \%>\%
+            surrogate(par_list = alist(formula = nclaims ~ ageph_ + bm_,
                                        family =  poisson(link = 'log'),
                                        offset = log(expo)))
 }

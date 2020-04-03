@@ -40,7 +40,7 @@ data_segm <- gbm_fit \%>\% insights(vars = c('ageph', 'bm', 'coverage', 'fuel'),
                                   pred_fun = gbm_fun) \%>\%
                          segmentation(data = mtpl_be,
                                       type = 'lambdas',
-                                      values = 0.0001)
+                                      values = 0.000001)
 data_segm \%>\% surrogate(formula = nclaims ~ ageph_ + bm_ + fuel_ + coverage_ + ageph_bm_ + bm_fuel_,
                         family =  poisson(link = 'log'),
                         offset = log(expo)) \%>\%
