@@ -2,6 +2,5 @@
 
 # Package startup message
 .onAttach <- function(libname, pkgname) {
-  packageStartupMessage('Welcome to maidrr!
-Let me aid you in developing a Model-Agnostic Interpretable Data-driven suRRogate for your black box.')
+  packageStartupMessage('maidrr: develop a Model-Agnostic Interpretable Data-driven suRRogate.')
 }
