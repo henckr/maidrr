@@ -1,20 +1,20 @@
 #' Calculate interaction strength
 #'
-#' Compute feature two-way interaction strength based on Friedman's H-statistic.
+#' Compute two-way feature interaction strength based on Friedman's H-statistic.
 #'
-#' @param pd_2d A data frame containing the 2D partial dependence as returned by
+#' @param pd_2d Data frame containing the 2D partial dependence as returned by
 #'   \code{\link{get_pd}} with \code{var = 'var1_var2'}.
-#' @param pd_1d A list of data frames containing the 1D partial dependence for
+#' @param pd_1d List of data frames containing the 1D partial dependence for
 #'   var1 and var2 as returned by \code{\link{get_pd}} with \code{var = 'var1'}
 #'   and \code{var = 'var2'} respectively.
 #' @return A numeric value between 0 and 1 indicating interaction strength.
 #' @examples
 #' \dontrun{
 #' data('mtpl_be')
-#' features <- setdiff(names(mtpl_be),c('id', 'nclaims', 'expo'))
+#' features <- setdiff(names(mtpl_be), c('id', 'nclaims', 'expo', 'long', 'lat'))
 #' set.seed(12345)
 #' gbm_fit <- gbm::gbm(as.formula(paste('nclaims ~',
-#'                                paste(features, sep = ' ', collapse = ' + '))),
+#'                                paste(features, collapse = ' + '))),
 #'                     distribution = 'poisson',
 #'                     data = mtpl_be,
 #'                     n.trees = 50,
@@ -22,20 +22,21 @@
 #'                     shrinkage = 0.1)
 #' gbm_fun <- function(object, newdata) mean(predict(object, newdata, n.trees = object$n.trees, type = 'response'))
 #' pd_2d <- get_pd(mfit = gbm_fit,
-#'                 var = 'ageph_power',
-#'                 grid = expand.grid('ageph' = 20:60, 'power' = 40:70),
+#'                 var = 'ageph_coverage',
+#'                 grid = tidyr::expand_grid('ageph' %>% get_grid(data = mtpl_be),
+#'                                           'coverage' %>% get_grid(data = mtpl_be)),
 #'                 data = mtpl_be,
 #'                 subsample = 10000
 #'                 fun = gbm_fun)
 #' pd_1d <- list(get_pd(mfit = gbm_fit,
 #'                      var = 'ageph',
-#'                      grid = data.frame('ageph' = 20:60),
+#'                      grid = 'ageph' %>% get_grid(data = mtpl_be),
 #'                      data = mtpl_be,
 #'                      subsample = 10000
 #'                      fun = gbm_fun),
 #'               get_pd(mfit = gbm_fit,
-#'                      var = 'power',
-#'                      grid = data.frame('power' = 40:70),
+#'                      var = 'coverage',
+#'                      grid = 'coverage' %>% get_grid(data = mtpl_be),
 #'                      data = mtpl_be,
 #'                      subsample = 10000
 #'                      fun = gbm_fun))

@@ -1,22 +1,22 @@
-#' Get the variable importance
+#' Calculate variable importance
 #'
 #' Compute variable importance scores for the predictors in a model. Note that
 #' \code{get_vi} is a simple wrapper for \code{\link[vip:vi]{vip::vi}}.
 #'
-#' @param mfit A fitted model object (e.g., a "gbm" or "randomForest" object).
+#' @param mfit Fitted model object (e.g., a "gbm" or "randomForest" object).
 #' @param ... Additional optional arguments to be passed onto
 #'   \code{\link[vip:vi]{vip::vi}}.
-#' @return A tidy data frame (i.e., a "tibble" object) with two columns:
+#' @return Tidy data frame (i.e., a "tibble" object) with two columns:
 #'   \code{Variable} and \code{Importance}.
 #' @seealso \code{\link[vip]{vi}} and
 #'   \url{https://CRAN.R-project.org/package=vip}.
 #' @examples
 #' \dontrun{
 #' data('mtpl_be')
-#' features <- setdiff(names(mtpl_be),c('id', 'nclaims', 'expo'))
+#' features <- setdiff(names(mtpl_be), c('id', 'nclaims', 'expo', 'long', 'lat'))
 #' set.seed(12345)
 #' gbm_fit <- gbm::gbm(as.formula(paste('nclaims ~',
-#'                                paste(features, sep = ' ', collapse = ' + '))),
+#'                                paste(features, collapse = ' + '))),
 #'                     distribution = 'poisson',
 #'                     data = mtpl_be,
 #'                     n.trees = 50,

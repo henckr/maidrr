@@ -29,20 +29,23 @@ autotune(
 \item{target}{String specifying the target (or response) variable to model.}
 
 \item{hcut}{Numeric in the range [0,1] specifying the cut-off value for the
-normalized cumulative H-statistic over all two-way interactions. See the
-documentation of \code{\link{insights}} for the details on this argument.
+normalized cumulative H-statistic over all two-way interactions, ordered
+from most to least important, between the features in \code{vars}. Note
+that \code{hcut = 0} will consider the single most important interaction,
+while \code{hcut = 1} will consider all possible two-way interactions.
 Setting \code{hcut = -1} will only consider main effects in the tuning.}
 
-\item{pred_fun}{Optional prediction function to calculate feature effects
-for the model in \code{mfit}. Requires two arguments: \code{object} and
-\code{newdata}. See \code{\link[pdp:partial]{pdp::partial}} for the details
-(\url{https://bgreenwell.github.io/pdp/articles/pdp-extending.html}).}
+\item{pred_fun}{Optional prediction function to calculate feature effects for
+the model in \code{mfit}. Requires two arguments: \code{object} and
+\code{newdata}. See \code{\link[pdp:partial]{pdp::partial}} and this
+\href{https://bgreenwell.github.io/pdp/articles/pdp-extending.html}{article}
+for the details. See also the function \code{gbm_fun} in the example.}
 
-\item{lambdas}{Numeric vector with the possible lambda values to explore.
-The search grid is created automatically via \code{\link{lambda_grid}}
-such that it contains only those values of lambda that result in a unique
-grouping of the full set of features. A seperate grid is generated for
-main and interaction effects, due to the scale difference in both types.}
+\item{lambdas}{Numeric vector with the possible lambda values to explore. The
+search grid is created automatically via \code{\link{lambda_grid}} such
+that it contains only those values of lambda that result in a unique
+grouping of the full set of features. A seperate grid is generated for main
+and interaction effects, due to the scale difference in both types.}
 
 \item{nfolds}{Integer for the number of folds in K-fold cross-validation.}
 
@@ -61,10 +64,11 @@ and takes two vectors \code{y_pred} and \code{y_true} as input for the
 predicted and true target values respectively. An additional input vector
 \code{w_case} is allowed to use case weights in the error function. The
 weights are determined automatically based on the \code{weights} field
-supplied to \code{glm_par}. Examples already included in the package:
+supplied to \code{glm_par}. Examples already included in the package are:
 \describe{ \item{mse}{mean squared error loss function (default).}
 \item{wgt_mse}{weighted mean squared error loss function.}
-\item{poi_dev}{Poisson deviance loss function.} }}
+\item{poi_dev}{Poisson deviance loss function.} } See
+\code{\link{err_fun}} for details on these predefined functions.}
 
 \item{ncores}{Integer specifying the number of cores to use. The default
 \code{ncores = -1} uses all the available physical cores (not threads), as
@@ -76,9 +80,9 @@ containing the selected features (names) and the optimal number of groups
 for each feature (values).} \item{best_surr}{the optimal GLM surrogate,
 which is fit to all observations in \code{data}. The segmented data can be
 obtained via the \code{$data} attribute of the GLM fit.} \item{tune_main}{
-the cross-validation results for the main effects as a tidy data frame.
-The column \code{cv_err} contains the cross-validated error, while
-the columns \code{1:nfolds} contain the error on the validation folds.}
+the cross-validation results for the main effects as a tidy data frame. The
+column \code{cv_err} contains the cross-validated error, while the columns
+\code{1:nfolds} contain the error on the validation folds.}
 \item{tune_intr}{cross-validation results for the interaction effects.}}
 }
 \description{
@@ -89,10 +93,10 @@ segmentation, with low/high values resulting in a fine/coarse segmentation.
 \examples{
 \dontrun{
 data('mtpl_be')
-features <- setdiff(names(mtpl_be),c('id', 'nclaims', 'expo'))
+features <- setdiff(names(mtpl_be), c('id', 'nclaims', 'expo', 'long', 'lat'))
 set.seed(12345)
 gbm_fit <- gbm::gbm(as.formula(paste('nclaims ~',
-                               paste(features, sep = ' ', collapse = ' + '))),
+                               paste(features, collapse = ' + '))),
                     distribution = 'poisson',
                     data = mtpl_be,
                     n.trees = 50,

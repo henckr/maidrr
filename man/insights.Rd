@@ -22,33 +22,33 @@ insights(
 \item{data}{Data frame containing the original training data.}
 
 \item{interactions}{String specifying how to deal with interaction effects:
-\describe{
-\item{'user'}{specify interactions in \code{vars} as \code{"var1_var2"}.}
-\item{'auto'}{automatic selection of interactions based on \code{hcut}.}
-}}
+\describe{ \item{'user'}{specify interactions in \code{vars} as
+\code{"var1_var2"}.} \item{'auto'}{automatic selection of interactions
+based on \code{hcut}.} }}
 
 \item{hcut}{Numeric in the range [0,1] specifying the cut-off value for the
-normalized cumulative H-statistic over all two-way interactions, ordered from
-most to least important, between the features in \code{var}. Note that
-\code{hcut = 0} will add the single most important interaction, while
+normalized cumulative H-statistic over all two-way interactions, ordered
+from most to least important, between the features in \code{vars}. Note
+that \code{hcut = 0} will add the single most important interaction, while
 \code{hcut = 1} will add all possible two-way interactions.}
 
-\item{pred_fun}{Optional prediction function to calculate feature effects
-for the model in \code{mfit}. Requires two arguments: \code{object} and
-\code{newdata}. See \code{\link[pdp:partial]{pdp::partial}} for the details
-(\url{https://bgreenwell.github.io/pdp/articles/pdp-extending.html}).}
+\item{pred_fun}{Optional prediction function to calculate feature effects for
+the model in \code{mfit}. Requires two arguments: \code{object} and
+\code{newdata}. See \code{\link[pdp:partial]{pdp::partial}} and this
+\href{https://bgreenwell.github.io/pdp/articles/pdp-extending.html}{article}
+for the details. See also the function \code{gbm_fun} in the example.}
 
 \item{fx_in}{Optional named list of data frames containing feature effects
-for features in \code{vars} that are already calculated beforehand, to avoid
-having to calculate these again. A possible use case is to supply the main
-effects such that only the interaction effects still need to be calculated.
-Precalculated interactions are ignored when \code{interactions = "auto"},
-but can be supplied when \code{interactions = "user"}. In case of the latter,
-it is important to make sure that you supply the pure interaction effects.}
+for features in \code{vars} that are already calculated beforehand, to
+avoid having to calculate these again. A possible use case is to supply the
+main effects such that only the interaction effects still need to be
+calculated. Precalculated interactions are ignored when \code{interactions
+  = "auto"}, but can be supplied when \code{interactions = "user"}. It is
+important to make sure that you supply the pure interaction effects.}
 }
 \value{
-A list of tidy data frames (i.e., "tibble" objects), each containing
-feature effects for the features in \code{var}, possibly with interactions.
+List of tidy data frames (i.e., "tibble" objects), containing the
+partial dependencies for the features (and interactions) in \code{vars}.
 }
 \description{
 Obtain insights from a black box model in the form of feature effects.
@@ -56,10 +56,10 @@ Obtain insights from a black box model in the form of feature effects.
 \examples{
 \dontrun{
 data('mtpl_be')
-features <- setdiff(names(mtpl_be),c('id', 'nclaims', 'expo'))
+features <- setdiff(names(mtpl_be), c('id', 'nclaims', 'expo', 'long', 'lat'))
 set.seed(12345)
 gbm_fit <- gbm::gbm(as.formula(paste('nclaims ~',
-                               paste(features, sep = ' ', collapse = ' + '))),
+                               paste(features, collapse = ' + '))),
                     distribution = 'poisson',
                     data = mtpl_be,
                     n.trees = 50,
@@ -69,7 +69,7 @@ gbm_fun <- function(object, newdata) mean(predict(object, newdata, n.trees = obj
 gbm_fit \%>\% insights(vars = c('ageph', 'bm', 'coverage', 'fuel'),
                      data = mtpl_be,
                      interactions = 'auto',
-                     hcut = 0.7,
+                     hcut = 0.75,
                      pred_fun = gbm_fun)
 gbm_fit \%>\% insights(vars = c('ageph', 'bm', 'coverage', 'fuel', 'bm_fuel'),
                      data = mtpl_be,

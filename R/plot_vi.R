@@ -1,17 +1,17 @@
-#' Plot the variable importance
+#' Plot variable importance
 #'
 #' Plot variable importance scores for the predictors in a model.
 #'
-#' @param vi A data frame containing variable importance scores as returned by
+#' @param vi Data frame containing the variable importance scores as returned by
 #'   \code{\link{get_vi}}.
-#' @return A ggplot object illustrating the variable importance scores.
+#' @return ggplot object showing the variable importance scores in \code{vi}.
 #' @examples
 #' \dontrun{
 #' data('mtpl_be')
-#' features <- setdiff(names(mtpl_be),c('id', 'nclaims', 'expo'))
+#' features <- setdiff(names(mtpl_be), c('id', 'nclaims', 'expo', 'long', 'lat'))
 #' set.seed(12345)
 #' gbm_fit <- gbm::gbm(as.formula(paste('nclaims ~',
-#'                                paste(features, sep = ' ', collapse = ' + '))),
+#'                                paste(features, collapse = ' + '))),
 #'                     distribution = 'poisson',
 #'                     data = mtpl_be,
 #'                     n.trees = 50,

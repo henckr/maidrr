@@ -3,7 +3,7 @@
 \docType{data}
 \name{mtpl_fr}
 \alias{mtpl_fr}
-\title{French motor third party liability portfolio}
+\title{French motor third party liability insurance portfolio}
 \format{A data frame with 163212 rows and 14 variables: \describe{
 \item{id}{policyholder id}
 \item{nclaims}{number of claims}
@@ -22,7 +22,7 @@ residence, in persons per squared kilometer}
 mtpl_fr
 }
 \description{
-A dataset containing the number of motor insurance claims and several
+Dataset containing the number of motor insurance claims and several
 characteristics for a portfolio of around 669000 policyholders.
 }
 \keyword{datasets}

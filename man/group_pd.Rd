@@ -13,21 +13,21 @@ group_pd_ckseg(pd, ngroups)
 group_pd_ckmns(pd, ngroups)
 }
 \arguments{
-\item{pd}{A data frame containing the partial dependence function as returned
-by \code{\link{get_pd}}.}
+\item{pd}{Data frame containing the partial dependence effect as returned by
+\code{\link{get_pd}}.}
 
-\item{ngroups}{An integer specifying the number of groups.}
+\item{ngroups}{Integer specifying the number of groups.}
 }
 \value{
-The tidy data frame (i.e., a "tibble" object) supplied in \code{pd}
-with three additional columns: xgrp, ygrp and wgrp. Column \code{xgrp}
-contains feature groups, column \code{ygrp} the average partial dependence
-for the group and \code{wgrp} the sum of observation counts for the group.
+Tidy data frame (i.e., a "tibble" object) supplied in \code{pd} with
+three additional columns: xgrp, ygrp and wgrp. Column \code{xgrp} contains
+feature groups, column \code{ygrp} the average partial dependence for the
+group and \code{wgrp} the sum of observation counts for the group.
 }
 \description{
 Grouping of feature values/levels by binning continuous/ordinal features and
 clustering nominal features. Partial dependencies are used to perform the
-grouping in a data-driven way.
+grouping of feature values/levels with similar behavior in a data-driven way.
 }
 \section{Functions}{
 \itemize{
@@ -39,10 +39,10 @@ grouping in a data-driven way.
 \examples{
 \dontrun{
 data('mtpl_be')
-features <- setdiff(names(mtpl_be),c('id', 'nclaims', 'expo'))
+features <- setdiff(names(mtpl_be), c('id', 'nclaims', 'expo', 'long', 'lat'))
 set.seed(12345)
 gbm_fit <- gbm::gbm(as.formula(paste('nclaims ~',
-                               paste(features, sep = ' ', collapse = ' + '))),
+                               paste(features, collapse = ' + '))),
                     distribution = 'poisson',
                     data = mtpl_be,
                     n.trees = 50,
@@ -50,7 +50,7 @@ gbm_fit <- gbm::gbm(as.formula(paste('nclaims ~',
                     shrinkage = 0.1)
 gbm_fun <- function(object, newdata) mean(predict(object, newdata, n.trees = object$n.trees, type = 'response'))
 gbm_fit \%>\% get_pd(var = 'ageph',
-                   grid = data.frame('ageph' = 20:90),
+                   grid = get_grid(var = 'ageph', data = mtpl_be),
                    data = mtpl_be,
                    subsample = 10000,
                    fun = gbm_fun) \%>\%

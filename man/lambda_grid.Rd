@@ -10,34 +10,36 @@ lambda_grid(
 )
 }
 \arguments{
-\item{fx_vars}{A list of data frames containing the feature effects.}
+\item{fx_vars}{List of data frames containing the feature effects.}
 
-\item{lambda_range}{A numeric vector of possible values for lambda.}
+\item{lambda_range}{Numeric vector of possible values for lambda.}
 }
 \value{
-A tidy data frame (i.e., a "tibble" object) with the lambda grid.
+Tidy data frame (i.e., a "tibble" object) with the lambda grid. The
+first column contains the lambda values from \code{lambda_range} which
+result in a unique grouping for the features in \code{fx_vars}. There is
+one column for each feature containing the optimal number of groups
+corresponding to those lambda values.
 }
 \description{
-Create a grid of lambda values that result in a unique grouping. Main and
-interaction effects are dealt with seperately due to the scale difference.
+Create a grid of lambda values that result in a unique grouping.
 }
 \examples{
 \dontrun{
 data('mtpl_be')
-features <- setdiff(names(mtpl_be),c('id', 'nclaims', 'expo'))
+features <- setdiff(names(mtpl_be), c('id', 'nclaims', 'expo', 'long', 'lat'))
 set.seed(12345)
 gbm_fit <- gbm::gbm(as.formula(paste('nclaims ~',
-                               paste(features, sep = ' ', collapse = ' + '))),
+                               paste(features, collapse = ' + '))),
                     distribution = 'poisson',
                     data = mtpl_be,
                     n.trees = 50,
                     interaction.depth = 3,
                     shrinkage = 0.1)
 gbm_fun <- function(object, newdata) mean(predict(object, newdata, n.trees = object$n.trees, type = 'response'))
-gbm_fit \%>\% insights(vars = c('ageph', 'bm', 'coverage', 'fuel'),
+gbm_fit \%>\% insights(vars = c('ageph', 'bm', 'coverage', 'fuel', 'bm_fuel'),
                      data = mtpl_be,
-                     interactions = 'auto',
-                     hcut = 0.7,
+                     interactions = 'user',
                      pred_fun = gbm_fun) \%>\%
             lambda_grid
 }

@@ -9,39 +9,38 @@ explain(surro, instance, plt = TRUE)
 \arguments{
 \item{surro}{The surrogate GLM fit (i.e., a "glm" object).}
 
-\item{instance}{A single row data frame with the instance to be explained.}
+\item{instance}{Single row data frame with the instance to be explained.}
 
 \item{plt}{Boolean whether to return a ggplot or the underlying data.}
 }
 \value{
-A tidy data frame or ggplot with each feature's contribution to the
+Tidy data frame or ggplot with each feature's contribution to the
 prediction of model \code{surro} on observation \code{instance}.
 }
 \description{
-Explain the surrogate GLM via each feature's contribution to the prediction.
+Explain a prediction of the surrogate GLM via each feature's contribution.
 }
 \examples{
 \dontrun{
 data('mtpl_be')
-features <- setdiff(names(mtpl_be),c('id', 'nclaims', 'expo'))
+features <- setdiff(names(mtpl_be), c('id', 'nclaims', 'expo', 'long', 'lat'))
 set.seed(12345)
 gbm_fit <- gbm::gbm(as.formula(paste('nclaims ~',
-                               paste(features, sep = ' ', collapse = ' + '))),
+                               paste(features, collapse = ' + '))),
                     distribution = 'poisson',
                     data = mtpl_be,
                     n.trees = 50,
                     interaction.depth = 3,
                     shrinkage = 0.1)
 gbm_fun <- function(object, newdata) mean(predict(object, newdata, n.trees = object$n.trees, type = 'response'))
-data_segm <- gbm_fit \%>\% insights(vars = c('ageph', 'bm', 'coverage', 'fuel'),
+data_segm <- gbm_fit \%>\% insights(vars = c('ageph', 'bm', 'coverage', 'fuel', 'bm_fuel'),
                                   data = mtpl_be,
-                                  interactions = 'auto',
-                                  hcut = 0.7,
+                                  interactions = 'user',
                                   pred_fun = gbm_fun) \%>\%
-                         segmentation(data = mtpl_be,
-                                      type = 'lambdas',
-                                      values = 0.000001)
-data_segm \%>\% surrogate(formula = nclaims ~ ageph_ + bm_ + fuel_ + coverage_ + ageph_bm_ + bm_fuel_,
+                          segmentation(data = mtpl_be,
+                                       type = 'ngroups',
+                                       values = setNames(c(7, 8, 2, 2, 3), c('ageph', 'bm', 'coverage', 'fuel', 'bm_fuel')))
+data_segm \%>\% surrogate(formula = nclaims ~ ageph_ + bm_ + coverage_ + fuel_ + bm_fuel_,
                         family =  poisson(link = 'log'),
                         offset = log(expo)) \%>\%
               explain(instance = data_segm[34, ])

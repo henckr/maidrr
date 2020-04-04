@@ -2,18 +2,18 @@
 % Please edit documentation in R/get_vi.R
 \name{get_vi}
 \alias{get_vi}
-\title{Get the variable importance}
+\title{Calculate variable importance}
 \usage{
 get_vi(mfit, ...)
 }
 \arguments{
-\item{mfit}{A fitted model object (e.g., a "gbm" or "randomForest" object).}
+\item{mfit}{Fitted model object (e.g., a "gbm" or "randomForest" object).}
 
 \item{...}{Additional optional arguments to be passed onto
 \code{\link[vip:vi]{vip::vi}}.}
 }
 \value{
-A tidy data frame (i.e., a "tibble" object) with two columns:
+Tidy data frame (i.e., a "tibble" object) with two columns:
 \code{Variable} and \code{Importance}.
 }
 \description{
@@ -23,10 +23,10 @@ Compute variable importance scores for the predictors in a model. Note that
 \examples{
 \dontrun{
 data('mtpl_be')
-features <- setdiff(names(mtpl_be),c('id', 'nclaims', 'expo'))
+features <- setdiff(names(mtpl_be), c('id', 'nclaims', 'expo', 'long', 'lat'))
 set.seed(12345)
 gbm_fit <- gbm::gbm(as.formula(paste('nclaims ~',
-                               paste(features, sep = ' ', collapse = ' + '))),
+                               paste(features, collapse = ' + '))),
                     distribution = 'poisson',
                     data = mtpl_be,
                     n.trees = 50,

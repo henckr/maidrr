@@ -11,8 +11,8 @@ hexSticker::sticker('maidrr.png', package = 'maidrr',
 #' Function to drop empty factor levels in test data
 #' (\href{https://stackoverflow.com/a/39495480/4185785}{source}).
 #'
-#' @param fit model fit of class "glm".
-#' @param test_data data frame with test data.
+#' @param fit Model fit of class "glm".
+#' @param test_data Data frame containing the test data.
 #' @export
 rm_lvls <- function(fit, test_data) {
 

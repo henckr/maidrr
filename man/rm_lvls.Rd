@@ -7,9 +7,9 @@
 rm_lvls(fit, test_data)
 }
 \arguments{
-\item{fit}{model fit of class "glm".}
+\item{fit}{Model fit of class "glm".}
 
-\item{test_data}{data frame with test data.}
+\item{test_data}{Data frame containing the test data.}
 }
 \description{
 Function to drop empty factor levels in test data

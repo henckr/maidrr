@@ -2,16 +2,16 @@
 % Please edit documentation in R/plot_pd.R
 \name{plot_pd}
 \alias{plot_pd}
-\title{Plot the partial dependence}
+\title{Plot partial dependence}
 \usage{
 plot_pd(pd)
 }
 \arguments{
-\item{pd}{A data frame containing partial dependence functions as returned by
+\item{pd}{Data frame containing the partial dependence effect as returned by
 \code{\link{get_pd}}.}
 }
 \value{
-A ggplot object illustrating the partial dependence functions.
+ggplot object showing the partial dependence effect in \code{pd}.
 }
 \description{
 Plot the partial dependence functions (i.e., marginal effects) for the
@@ -20,10 +20,10 @@ predictors in a model.
 \examples{
 \dontrun{
 data('mtpl_be')
-features <- setdiff(names(mtpl_be),c('id', 'nclaims', 'expo'))
+features <- setdiff(names(mtpl_be), c('id', 'nclaims', 'expo', 'long', 'lat'))
 set.seed(12345)
 gbm_fit <- gbm::gbm(as.formula(paste('nclaims ~',
-                               paste(features, sep = ' ', collapse = ' + '))),
+                               paste(features, collapse = ' + '))),
                     distribution = 'poisson',
                     data = mtpl_be,
                     n.trees = 50,
@@ -31,13 +31,7 @@ gbm_fit <- gbm::gbm(as.formula(paste('nclaims ~',
                     shrinkage = 0.1)
 gbm_fun <- function(object, newdata) mean(predict(object, newdata, n.trees = object$n.trees, type = 'response'))
 gbm_fit \%>\% get_pd(var = 'ageph',
-                   grid = data.frame('ageph' = 20:80),
-                   data = mtpl_be,
-                   subsample = 10000,
-                   fun = gbm_fun) \%>\%
-            plot_pd
-gbm_fit \%>\% get_pd(var = 'power_coverage',
-                   grid = expand.grid('power' = 40:90, 'coverage' = c('TPL', 'TPL+', 'TPL++')),
+                   grid = 'ageph' \%>\% get_grid(data = mtpl_be),
                    data = mtpl_be,
                    subsample = 10000,
                    fun = gbm_fun) \%>\%

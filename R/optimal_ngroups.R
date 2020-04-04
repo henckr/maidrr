@@ -2,19 +2,21 @@
 #'
 #' Determine the optimal number of groups for a feature.
 #'
-#' @param pd A data frame containing the partial dependence function as returned
-#'   by \code{\link{get_pd}}.
-#' @param lambda The complexity parameter in the penalized loss function.
-#' @param search_grid An integer vector containing the values to evaluate.
-#' @return An integer specifying the optimal number of groups. When multiple
+#' @param pd Data frame containing the partial dependence effect as returned by
+#'   \code{\link{get_pd}}.
+#' @param lambda The complexity parameter in the penalized loss function (see
+#'   the accompanying research paper or R vignette for details on this aspect).
+#' @param search_grid Integer vector containing the grid of values to evaluate
+#'   for the number of groups.
+#' @return Integer specifying the optimal number of groups. When multiple
 #'   groupings lead to the lowest loss, the smallest value is returned.
 #' @examples
 #' \dontrun{
 #' data('mtpl_be')
-#' features <- setdiff(names(mtpl_be),c('id', 'nclaims', 'expo'))
+#' features <- setdiff(names(mtpl_be), c('id', 'nclaims', 'expo', 'long', 'lat'))
 #' set.seed(12345)
 #' gbm_fit <- gbm::gbm(as.formula(paste('nclaims ~',
-#'                                paste(features, sep = ' ', collapse = ' + '))),
+#'                                paste(features, collapse = ' + '))),
 #'                     distribution = 'poisson',
 #'                     data = mtpl_be,
 #'                     n.trees = 50,
@@ -22,11 +24,11 @@
 #'                     shrinkage = 0.1)
 #' gbm_fun <- function(object, newdata) mean(predict(object, newdata, n.trees = object$n.trees, type = 'response'))
 #' gbm_fit %>% get_pd(var = 'ageph',
-#'                    grid = data.frame('ageph' = 20:90),
+#'                    grid = 'ageph' %>% get_grid(data = mtpl_be),
 #'                    data = mtpl_be,
 #'                    subsample = 10000,
 #'                    fun = gbm_fun) %>%
-#'             optimal_ngroups(lambda = 0.01)
+#'             optimal_ngroups(lambda = 0.00001)
 #' }
 #' @export
 optimal_ngroups <- function(pd, lambda, search_grid = seq_len(min(length(unique(pd$y)), 15))) {
@@ -42,6 +44,7 @@ optimal_ngroups <- function(pd, lambda, search_grid = seq_len(min(length(unique(
 }
 
 
+#' @keywords internal
 loss_func <- function(pd, lambda, ngroups){
 
   pd_grp <- pd %>% group_pd(ngroups = ngroups)

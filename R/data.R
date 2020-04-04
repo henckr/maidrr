@@ -1,6 +1,6 @@
-#' Belgian motor third party liability portfolio
+#' Belgian motor third party liability insurance portfolio
 #'
-#' A dataset containing the number of motor insurance claims and several
+#' Dataset containing the number of motor insurance claims and several
 #' characteristics for a portfolio of around 163000 policyholders.
 #'
 #' @format A data frame with 163212 rows and 14 variables: \describe{
@@ -23,9 +23,9 @@
 #' }
 'mtpl_be'
 
-#' French motor third party liability portfolio
+#' French motor third party liability insurance portfolio
 #'
-#' A dataset containing the number of motor insurance claims and several
+#' Dataset containing the number of motor insurance claims and several
 #' characteristics for a portfolio of around 669000 policyholders.
 #'
 #' @format A data frame with 163212 rows and 14 variables: \describe{

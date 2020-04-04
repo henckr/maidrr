@@ -2,39 +2,43 @@
 % Please edit documentation in R/get_pd.R
 \name{get_pd}
 \alias{get_pd}
-\title{Get the partial dependence}
+\title{Calculate partial dependence}
 \usage{
 get_pd(mfit, var, grid, data, subsample = nrow(data), fun = NULL, ...)
 }
 \arguments{
-\item{mfit}{A fitted model object (e.g., a "gbm" or "randomForest" object).}
+\item{mfit}{Fitted model object (e.g., a "gbm" or "randomForest" object).}
 
 \item{var}{Character string giving the name of the predictor variable of
 interest. For an interaction effect, specify as \code{"var1_var2"}. For now
 only two-way interactions are supported, so do not specify more than two
 variable names (i.e., only one underscore allowed in the string).}
 
-\item{grid}{Data frame containing the joint values of interest for the
+\item{grid}{Data frame containing the (joint) values of interest for the
 feature(s) listed in \code{var}. One column for main effects and two
-columns for interaction effect where column names are the feature names.}
+columns for an interaction effect, with feature names as the column names.
+See the documentation and examples of \code{\link{get_grid}} for details.}
 
 \item{data}{Data frame containing the original training data.}
 
-\item{subsample}{An optional integer specifying the number of observations to
+\item{subsample}{Optional integer specifying the number of observations to
 use for the computation of the partial dependencies. Defaults to the number
 of observations in \code{data}, but a smaller value saves computation time.}
 
-\item{fun}{Optional prediction function that requires two arguments:
-\code{object} and \code{newdata}.}
-
 \item{...}{Additional optional arguments to be passed onto
 \code{\link[pdp:partial]{pdp::partial}}.}
+
+\item{pred_fun}{Optional prediction function to calculate feature effects for
+the model in \code{mfit}. Requires two arguments: \code{object} and
+\code{newdata}. See \code{\link[pdp:partial]{pdp::partial}} and this
+\href{https://bgreenwell.github.io/pdp/articles/pdp-extending.html}{article}
+for the details. See also the function \code{gbm_fun} in the example.}
 }
 \value{
-A tidy data frame (i.e., a "tibble" object) with three (x, y, w) or
-four (x1, x2, y, w) columns for respectively a marginal and two-way
-interaction effect. Column(s) \code{x} contain variable values, column
-\code{y} the partial dependence and \code{w} the observation counts in
+Tidy data frame (i.e., a "tibble" object) with three (x, y, w) or
+four (x1, x2, y, w) columns for respectively a main and two-way interaction
+effect. Column(s) \code{x} contain variable values, column \code{y} the
+partial dependence effect and \code{w} the observation counts in
 \code{data}. The data frame attribute \code{comment} contains the variable
 name, as specified in the \code{var} argument.
 }
@@ -46,10 +50,10 @@ predictors in a model. Note that \code{get_pd} is based on
 \examples{
 \dontrun{
 data('mtpl_be')
-features <- setdiff(names(mtpl_be),c('id', 'nclaims', 'expo'))
+features <- setdiff(names(mtpl_be), c('id', 'nclaims', 'expo', 'long', 'lat'))
 set.seed(12345)
 gbm_fit <- gbm::gbm(as.formula(paste('nclaims ~',
-                               paste(features, sep = ' ', collapse = ' + '))),
+                               paste(features, collapse = ' + '))),
                     distribution = 'poisson',
                     data = mtpl_be,
                     n.trees = 50,
@@ -57,12 +61,13 @@ gbm_fit <- gbm::gbm(as.formula(paste('nclaims ~',
                     shrinkage = 0.1)
 gbm_fun <- function(object, newdata) mean(predict(object, newdata, n.trees = object$n.trees, type = 'response'))
 gbm_fit \%>\% get_pd(var = 'ageph',
-                   grid = data.frame('ageph' = 20:80),
+                   grid = 'ageph' \%>\% get_grid(data = mtpl_be),
                    data = mtpl_be,
                    subsample = 10000,
                    fun = gbm_fun)
 gbm_fit \%>\% get_pd(var = 'power_coverage',
-                   grid = expand.grid('power' = 40:90, 'coverage' = c('TPL', 'TPL+', 'TPL++')),
+                   grid = tidyr::expand_grid('ageph' \%>\% get_grid(data = mtpl_be),
+                                             'coverage' \%>\% get_grid(data = mtpl_be)),
                    data = mtpl_be,
                    subsample = 10000,
                    fun = gbm_fun)

@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_grid.R
 \name{get_grid}
 \alias{get_grid}
-\title{Get a feature grid}
+\title{Get feature grid}
 \usage{
 get_grid(var, data)
 }
@@ -13,8 +13,9 @@ integer, numeric or factor variables are supported for now.}
 \item{data}{Data frame containing the original training data.}
 }
 \value{
-A tidy data frame (i.e., a "tibble" object) with one column
-containing the grid values for feature \code{var}.
+One-column tidy data frame (i.e., a "tibble" object). This column
+contains the grid values for feature \code{var} based on the observed
+values in \code{data}.
 }
 \description{
 Get the grid values for a feature based on the observed values in the data.
@@ -23,5 +24,6 @@ Get the grid values for a feature based on the observed values in the data.
 data('mtpl_be')
 'ageph' \%>\% get_grid(data = mtpl_be)
 'coverage' \%>\% get_grid(data = mtpl_be)
-tidyr::expand_grid(get_grid(var ='ageph', data = mtpl_be), get_grid(var ='coverage', data = mtpl_be))
+tidyr::expand_grid('ageph' \%>\% get_grid(data = mtpl_be),
+                   'coverage' \%>\% get_grid(data = mtpl_be))
 }

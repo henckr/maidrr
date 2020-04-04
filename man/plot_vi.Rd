@@ -2,16 +2,16 @@
 % Please edit documentation in R/plot_vi.R
 \name{plot_vi}
 \alias{plot_vi}
-\title{Plot the variable importance}
+\title{Plot variable importance}
 \usage{
 plot_vi(vi)
 }
 \arguments{
-\item{vi}{A data frame containing variable importance scores as returned by
+\item{vi}{Data frame containing the variable importance scores as returned by
 \code{\link{get_vi}}.}
 }
 \value{
-A ggplot object illustrating the variable importance scores.
+ggplot object showing the variable importance scores in \code{vi}.
 }
 \description{
 Plot variable importance scores for the predictors in a model.
@@ -19,10 +19,10 @@ Plot variable importance scores for the predictors in a model.
 \examples{
 \dontrun{
 data('mtpl_be')
-features <- setdiff(names(mtpl_be),c('id', 'nclaims', 'expo'))
+features <- setdiff(names(mtpl_be), c('id', 'nclaims', 'expo', 'long', 'lat'))
 set.seed(12345)
 gbm_fit <- gbm::gbm(as.formula(paste('nclaims ~',
-                               paste(features, sep = ' ', collapse = ' + '))),
+                               paste(features, collapse = ' + '))),
                     distribution = 'poisson',
                     data = mtpl_be,
                     n.trees = 50,
