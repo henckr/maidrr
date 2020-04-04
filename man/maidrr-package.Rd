@@ -3,10 +3,14 @@
 \docType{package}
 \name{maidrr-package}
 \alias{maidrr-package}
-\title{maidrr: A package that implements mAIDs in R}
+\title{maidrr: Model-Agnostic Interpretable Data-driven suRRogate}
 \description{
-The maidrr package provides functions to aid you in developing a
-model-Agnostic Interpretable Data-driven suRRogate model for
-any type of black box algorithm.
+The goal of maidrr is to aid you in the development of a Model-Agnostic Interpretable Data-driven suRRogate for your black box algorithm of choice.
+In short, these are the steps in the procedure:
+\enumerate{
+\item Partial dependencies (PDs) are used to obtain model insights from the black box in the form of feature effects.
+\item Those effects are used to group values/levels within a feature in an optimal data-driven way, while performing built-in feature selection.
+\item An interpretable GLM surrogate is fit to the segmented features. Meaningful interactions can be included if desired.
+}
 }
 \keyword{package}
