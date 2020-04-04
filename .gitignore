@@ -8,6 +8,10 @@ vignettes/*_files/
 vignettes/*.R
 .DS_Store
 
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+
 
 # Created by https://www.gitignore.io/api/r
 # Edit at https://www.gitignore.io/?templates=r
