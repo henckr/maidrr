@@ -57,7 +57,7 @@ segmentation <- function(fx_vars, data, type, values) {
 
     data <- data %>% dplyr::left_join(fx_grp[c(paste0('x', if (grepl('_', var)) 1:2), 'xgrp')],
                                       by = setNames(paste0('x', if (grepl('_', var)) 1:2), unlist(strsplit(var, '_')))) %>%
-      dplyr::mutate(xgrp = relevel(as.factor(xgrp), ref =  (fx_grp %>% dplyr::arrange(-wgrp) %>% dplyr::pull(xgrp))[1])) %>%
+      dplyr::mutate(xgrp = relevel(as.factor(xgrp), ref =  as.character((fx_grp %>% dplyr::arrange(-wgrp) %>% dplyr::pull(xgrp))[1]))) %>%
       dplyr::rename(!!paste0(var, '_') := xgrp)
   }
   return(data)
