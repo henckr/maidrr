@@ -11,7 +11,7 @@ Description: The goal of maidrr is to aid you in the development of a Model-Agno
   1) Partial dependencies (PDs) are used to obtain model insights from the black box in the form of feature effects.
   2) Those effects are used to group values/levels within a feature in an optimal data-driven way, while performing built-in feature selection.
   3) An interpretable GLM surrogate is fit to the segmented features. Meaningful interactions can be included if desired.
-URL: http://github.com/henckr/maidrr
+URL: https://henckr.github.io/maidrr/, https://github.com/henckr/maidrr
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
