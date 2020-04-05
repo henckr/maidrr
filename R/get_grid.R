@@ -9,11 +9,13 @@
 #'   contains the grid values for feature \code{var} based on the observed
 #'   values in \code{data}.
 #' @examples
+#' \dontrun{
 #' data('mtpl_be')
 #' 'ageph' %>% get_grid(data = mtpl_be)
 #' 'coverage' %>% get_grid(data = mtpl_be)
 #' tidyr::expand_grid('ageph' %>% get_grid(data = mtpl_be),
 #'                    'coverage' %>% get_grid(data = mtpl_be))
+#' }
 #' @export
 get_grid <- function(var, data) {
 

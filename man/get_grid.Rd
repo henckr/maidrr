@@ -21,9 +21,11 @@ values in \code{data}.
 Get the grid values for a feature based on the observed values in the data.
 }
 \examples{
+\dontrun{
 data('mtpl_be')
 'ageph' \%>\% get_grid(data = mtpl_be)
 'coverage' \%>\% get_grid(data = mtpl_be)
 tidyr::expand_grid('ageph' \%>\% get_grid(data = mtpl_be),
                    'coverage' \%>\% get_grid(data = mtpl_be))
+}
 }

@@ -1,7 +1,17 @@
 destination: docs
 
 reference:
+- title: 'Package maidrr'
+- contents:
+  - maidrr-package
+- subtitle: 'Datasets included'
+- contents:
+  - mtpl_be
+  - mtpl_fr
 - title: 'Automatic tuning via cross-validation'
+  desc: >
+    This function automates the tuning process involved in steps 1-3 below
+    in order to find the optimal data segmentation and surrogate GLM.
 - contents:
   - autotune
 - subtitle: 'Helper functions'
@@ -9,7 +19,7 @@ reference:
   - lambda_grid
   - err_fun
   - rm_lvls
-- title: 'Obtaining model insights'
+- title: '1) Obtaining model insights'
 - contents:
   - insights
 - subtitle: 'Helper functions'
@@ -21,23 +31,16 @@ reference:
   - plot_pd
   - interaction_pd
   - interaction_strength
-- title: 'Segmentation of the data'
+- title: '2) Segmentation of the data'
 - contents:
   - segmentation
 - subtitle: 'Helper functions'
 - contents:
   - group_pd
   - optimal_ngroups
-- title: 'Fitting a GLM surrogate'
+- title: '3) Fitting a GLM surrogate'
 - contents:
   - surrogate
-- title: 'Explaining a prediction'
+- title: '4) Explaining a prediction'
 - contents:
   - explain
-- title: 'Datasets included'
-- contents:
-  - mtpl_be
-  - mtpl_fr
-- title: 'Package maidrr'
-- contents:
-  - maidrr-package
