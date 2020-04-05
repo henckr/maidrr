@@ -4,7 +4,7 @@ hexSticker::sticker('maidrr.png', package = 'maidrr',
                     p_y = 1.55, p_color = '#2b60de',
                     h_size = 1, h_color = '#2b60de', h_fill = '#e6e6fa',
                     dpi = 720,
-                    filename = 'inst/figures/maidrr_hex.png')
+                    filename = 'man/figures/maidrr_hex.png')
 
 #' Drop unused factor levels
 #'

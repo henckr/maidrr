@@ -38,19 +38,19 @@ pd_2d <- get_pd(mfit = gbm_fit,
                 grid = tidyr::expand_grid('ageph' \%>\% get_grid(data = mtpl_be),
                                           'coverage' \%>\% get_grid(data = mtpl_be)),
                 data = mtpl_be,
-                subsample = 10000
+                subsample = 10000,
                 fun = gbm_fun)
 pd_1d <- list(get_pd(mfit = gbm_fit,
                      var = 'ageph',
                      grid = 'ageph' \%>\% get_grid(data = mtpl_be),
                      data = mtpl_be,
-                     subsample = 10000
+                     subsample = 10000,
                      fun = gbm_fun),
               get_pd(mfit = gbm_fit,
                      var = 'coverage',
                      grid = 'coverage' \%>\% get_grid(data = mtpl_be),
                      data = mtpl_be,
-                     subsample = 10000
+                     subsample = 10000,
                      fun = gbm_fun))
 interaction_strength(pd_2d, pd_1d)
 }

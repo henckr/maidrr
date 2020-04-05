@@ -22,7 +22,7 @@ reference:
   - interaction_pd
   - interaction_strength
 - title: 'Segmentation of the data'
-- contents
+- contents:
   - segmentation
 - subtitle: 'Helper functions'
 - contents:

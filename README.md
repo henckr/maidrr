@@ -1,11 +1,11 @@
-# The `maidrr` package <img src="inst/figures/maidrr_hex.png" alt="maidrr hex_logo" style="float:right;height:200px" align="right" height="200">
+# The `maidrr` package <img src="man/figures/maidrr_hex.png" alt="" align="right" height="200">
 
 This is the source code for the  `maidrr` package, which is currently under development.
 
 ## Installation
 To install `maidrr` from GitHub you will need `devtools`:
 
-```{r, eval = FALSE}
+``` r
 install.packages('devtools')
 devtools::install_github('henckr/maidrr')
 ```
