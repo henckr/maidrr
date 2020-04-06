@@ -6,7 +6,16 @@
 #' @param instance Single row data frame with the instance to be explained.
 #' @param plt Boolean whether to return a ggplot or the underlying data.
 #' @return Tidy data frame or ggplot with each feature's contribution to the
-#'   prediction of model \code{surro} on observation \code{instance}.
+#'   prediction of model \code{surro} on observation \code{instance}. When
+#'   \code{plt = FALSE}, the columns \code{fit_link} and \code{se_link} contain
+#'   the fitted coefficient and standard error on the linear predictor scale.
+#'   The column \code{fit_resp} contains the coefficient on the response scale
+#'   after taking the inverse link function. The columns \code{upr_conf} and
+#'   \code{lwr_conf} contain the upper and lower bound of a 95\% confidence
+#'   interval on the response scale. When \code{plt = TRUE} the ggplot shows the
+#'   coefficient and confidence interval on the response scale. A green dashed
+#'   line shows the value of the invere link function applied to zero. Features
+#'   with bars close to this line have a neglegible impact on the predition.
 #' @examples
 #' \dontrun{
 #' data('mtpl_be')
@@ -57,9 +66,9 @@ explain <- function(surro, instance, plt = TRUE) {
   coefs[! grepl('_', coefs$term), 'value'] <-  coefs[! grepl('_', coefs$term), ][['term']] %>% sprintf('%s=%s', ., instance_chr[.])
 
   if (plt) return(coefs %>% ggplot(aes(x = reorder(value, -fit_resp), y = fit_resp)) +
-                    geom_bar(position = 'identity', stat = 'identity') +
+                    geom_bar(position = 'identity', stat = 'identity', fill = '#999999') +
                     geom_errorbar(aes(ymin = lwr_conf, ymax = upr_conf), width = 0.5) +
-                    geom_hline(yintercept = ilink_fun(0), color = 'darkgreen', size = 1.2, linetype = 'dashed') +
+                    geom_hline(yintercept = ilink_fun(0), color = 'darkgreen', size = 1, linetype = 'dashed') +
                     coord_flip() + labs(x = '', y = 'Feature contributions') + theme_bw())
 
   return(coefs)

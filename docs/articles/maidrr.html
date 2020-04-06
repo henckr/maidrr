@@ -540,9 +540,16 @@ text-align: justify}
 <li>
 <code>instance</code>: single row data frame with the instance to be explained.</li>
 <li>
-<code>plt</code>: boolean whether to return a ggplot (TRUE) or the underlying data (FALSE).</li>
+<code>plt</code>: boolean whether to return a ggplot (TRUE) or the underlying data (FALSE).
+<ul>
+<li>
+<code>plt = FALSE</code>: the columns <code>fit_link</code> and <code>se_link</code> contain the fitted coefficient and standard error on the linear predictor scale. The column <code>fit_resp</code> contains the coefficient on the response scale after taking the inverse link function, while <code>upr_conf</code> and <code>lwr_conf</code> contain the upper and lower bound of a 95% confidence interval.</li>
+<li>
+<code>plt = TRUE</code>: shows the coefficient and confidence interval on the response scale. A green dashed line shows the value of the invere link function applied to zero. Features with bars close to this line have a neglegible impact on the predition.</li>
 </ul>
-<p>Let’s explain the prediction made by the BE GLM for two policyholders (id 34 and 4938). Notice that the prediction for the former is below the intercept of the GLM, while it is more than doubled for the latter. Why is this the case? The low risk for id 34 is mainly thanks to a low bonus-malus level and high age. Driving a high powered car increases the risk on the other hand. The high risk for id 4938 is mainly due to a high bonus-malus level and young age. Note that these contributions and standard errors are shown on the response scale after taking the invere link function of the coefficients. For a Poisson GLM with <code>log</code>-link function this implies applying the <code>exp</code> function on the coefficients, with contributions on the multiplicative response scale and a value of 1 indicating no effect of that feature.</p>
+</li>
+</ul>
+<p>Let’s explain the prediction made by the BE GLM for two policyholders (id 34 and 4938). Notice that the prediction for the former is below the intercept of the GLM, while it is more than doubled for the latter. Why is this the case? The low risk for id 34 is mainly thanks to a low bonus-malus level and high age. Driving a high powered car increases the risk on the other hand. The high risk for id 4938 is mainly due to a high bonus-malus level and young age. Note that these contributions and confidence intervals are shown on the response scale after taking the invere link function of the coefficients. For a Poisson GLM with <code>log</code>-link function this implies applying the <code>exp</code> function on the coefficients, with contributions on the multiplicative response scale and a value of 1 indicating no contribution.</p>
 <div class="sourceCode"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span>(<span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span>(<span class="no">glm_be</span>)[<span class="st">'(Intercept)'</span>])
 <span class="co">#&gt; (Intercept) </span>
 <span class="co">#&gt;   0.1109892</span>

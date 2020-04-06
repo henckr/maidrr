@@ -15,7 +15,16 @@ explain(surro, instance, plt = TRUE)
 }
 \value{
 Tidy data frame or ggplot with each feature's contribution to the
-prediction of model \code{surro} on observation \code{instance}.
+prediction of model \code{surro} on observation \code{instance}. When
+\code{plt = FALSE}, the columns \code{fit_link} and \code{se_link} contain
+the fitted coefficient and standard error on the linear predictor scale.
+The column \code{fit_resp} contains the coefficient on the response scale
+after taking the inverse link function. The columns \code{upr_conf} and
+\code{lwr_conf} contain the upper and lower bound of a 95\\% confidence
+interval on the response scale. When \code{plt = TRUE} the ggplot shows the
+coefficient and confidence interval on the response scale. A green dashed
+line shows the value of the invere link function applied to zero. Features
+with bars close to this line have a neglegible impact on the predition.
 }
 \description{
 Explain a prediction of the surrogate GLM via each feature's contribution.
