@@ -3,6 +3,7 @@ inst/doc
 
 *.Rproj
 maidrr.png
+R/hex_logo.R
 vignettes/*_cache/
 vignettes/*_files/
 vignettes/*.R

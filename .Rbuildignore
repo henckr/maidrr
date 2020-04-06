@@ -2,6 +2,7 @@
 ^\.Rproj\.user$
 ^LICENSE\.md$
 ^maidrr\.png$
+^R/hex_logo\.R$
 ^_pkgdown\.yml$
 ^docs$
 ^pkgdown$

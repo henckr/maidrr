@@ -1,11 +1,3 @@
-# Create the hexSticker for maidrr
-hexSticker::sticker('maidrr.png', package = 'maidrr',
-                    s_x = 1, s_width = 1,
-                    p_y = 1.55, p_color = '#2b60de',
-                    h_size = 1, h_color = '#2b60de', h_fill = '#e6e6fa',
-                    dpi = 720,
-                    filename = 'man/figures/maidrr_hex.png')
-
 #' Drop unused factor levels
 #'
 #' Function to drop empty factor levels in test data
