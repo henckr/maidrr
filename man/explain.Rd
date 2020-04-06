@@ -20,7 +20,7 @@ prediction of model \code{surro} on observation \code{instance}. When
 the fitted coefficient and standard error on the linear predictor scale.
 The column \code{fit_resp} contains the coefficient on the response scale
 after taking the inverse link function. The columns \code{upr_conf} and
-\code{lwr_conf} contain the upper and lower bound of a 95\\% confidence
+\code{lwr_conf} contain the upper and lower bound of a \verb{95\%} confidence
 interval on the response scale. When \code{plt = TRUE} the ggplot shows the
 coefficient and confidence interval on the response scale. A green dashed
 line shows the value of the invere link function applied to zero. Features
