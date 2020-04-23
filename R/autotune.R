@@ -14,6 +14,8 @@
 #'   that \code{hcut = 0} will consider the single most important interaction,
 #'   while \code{hcut = 1} will consider all possible two-way interactions.
 #'   Setting \code{hcut = -1} will only consider main effects in the tuning.
+#' @param ignr_intr Optional character string specifying features to ignore when
+#'   searching for meaningful interactions to incorporate in the GLM.
 #' @param pred_fun Optional prediction function to calculate feature effects for
 #'   the model in \code{mfit}. Requires two arguments: \code{object} and
 #'   \code{newdata}. See \code{\link[pdp:partial]{pdp::partial}} and this
@@ -82,7 +84,7 @@
 #'                      ncores = -1)
 #' }
 #' @export
-autotune <- function(mfit, data, vars, target, hcut = 0.75, pred_fun = NULL, lambdas = as.vector(outer(seq(1, 10, 0.1), 10^(-7:3))), nfolds = 5, strat_vars = NULL, glm_par = alist(), err_fun = mse, ncores = -1) {
+autotune <- function(mfit, data, vars, target, hcut = 0.75, ignr_intr = NULL, pred_fun = NULL, lambdas = as.vector(outer(seq(1, 10, 0.1), 10^(-7:3))), nfolds = 5, strat_vars = NULL, glm_par = alist(), err_fun = mse, ncores = -1) {
 
   if (sum(grepl('_', vars)) > 0) stop('No underscores allowed in the variable names, these are interpreted as interactions in maidrr.')
   if (! all(vars %in% names(data))) stop('All the variables needs to be present in the data.')
@@ -185,7 +187,7 @@ autotune <- function(mfit, data, vars, target, hcut = 0.75, pred_fun = NULL, lam
 
   # Generate the feature effects and the lambda grid for interactions
   fx_intr <- maidrr::insights(mfit = mfit,
-                              vars = names(slct_main),
+                              vars = setdiff(names(slct_main), ignr_intr),
                               data = data,
                               interactions = 'auto',
                               hcut = hcut,

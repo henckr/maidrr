@@ -10,6 +10,7 @@ autotune(
   vars,
   target,
   hcut = 0.75,
+  ignr_intr = NULL,
   pred_fun = NULL,
   lambdas = as.vector(outer(seq(1, 10, 0.1), 10^(-7:3))),
   nfolds = 5,
@@ -34,6 +35,9 @@ from most to least important, between the features in \code{vars}. Note
 that \code{hcut = 0} will consider the single most important interaction,
 while \code{hcut = 1} will consider all possible two-way interactions.
 Setting \code{hcut = -1} will only consider main effects in the tuning.}
+
+\item{ignr_intr}{Optional character string specifying features to ignore when
+searching for meaningful interactions to incorporate in the GLM.}
 
 \item{pred_fun}{Optional prediction function to calculate feature effects for
 the model in \code{mfit}. Requires two arguments: \code{object} and
