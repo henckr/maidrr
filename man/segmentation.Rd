@@ -4,7 +4,7 @@
 \alias{segmentation}
 \title{Data segmentation}
 \usage{
-segmentation(fx_vars, data, type, values)
+segmentation(fx_vars, data, type, values, max_ngrps = 15)
 }
 \arguments{
 \item{fx_vars}{List of data frames containing the feature effects.}
@@ -20,6 +20,10 @@ penalized loss.} }}
 numeric value (same is used for all features in \code{fx_vars}) or a named
 numeric vector of \code{length(fx_vars)} (for feature-specific values). In
 this case, the names must match the comment attributes in \code{fx_vars}.}
+
+\item{max_ngrps}{Integer specifying the maximum number of groups that each
+feature's values/levels are allowed to be grouped into. Only used when
+determinining the optimal number of groups via \code{type = 'lambdas'}.}
 }
 \value{
 Data frame with the segmented data. The grouped features are added to

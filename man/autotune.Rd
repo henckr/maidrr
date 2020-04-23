@@ -9,6 +9,7 @@ autotune(
   data,
   vars,
   target,
+  max_ngrps = 15,
   hcut = 0.75,
   ignr_intr = NULL,
   pred_fun = NULL,
@@ -29,6 +30,9 @@ autotune(
 \item{vars}{Character vector specifying the features in \code{data} to use.}
 
 \item{target}{String specifying the target (or response) variable to model.}
+
+\item{max_ngrps}{Integer specifying the maximum number of groups that each
+feature's values/levels are allowed to be grouped into.}
 
 \item{hcut}{Numeric in the range [0,1] specifying the cut-off value for the
 normalized cumulative H-statistic over all two-way interactions, ordered

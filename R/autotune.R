@@ -8,6 +8,8 @@
 #' @param data Data frame containing the original training data.
 #' @param vars Character vector specifying the features in \code{data} to use.
 #' @param target String specifying the target (or response) variable to model.
+#' @param max_ngrps Integer specifying the maximum number of groups that each
+#'   feature's values/levels are allowed to be grouped into.
 #' @param hcut Numeric in the range \[0,1\] specifying the cut-off value for the
 #'   normalized cumulative H-statistic over all two-way interactions, ordered
 #'   from most to least important, between the features in \code{vars}. Note
@@ -88,7 +90,7 @@
 #'                      ncores = -1)
 #' }
 #' @export
-autotune <- function(mfit, data, vars, target, hcut = 0.75, ignr_intr = NULL, pred_fun = NULL, lambdas = as.vector(outer(seq(1, 10, 0.1), 10^(-7:3))), nfolds = 5, strat_vars = NULL, glm_par = alist(), err_fun = mse, ncores = -1, out_pds = FALSE) {
+autotune <- function(mfit, data, vars, target, max_ngrps = 15, hcut = 0.75, ignr_intr = NULL, pred_fun = NULL, lambdas = as.vector(outer(seq(1, 10, 0.1), 10^(-7:3))), nfolds = 5, strat_vars = NULL, glm_par = alist(), err_fun = mse, ncores = -1, out_pds = FALSE) {
 
   if (sum(grepl('_', vars)) > 0) stop('No underscores allowed in the variable names, these are interpreted as interactions in maidrr.')
   if (! all(vars %in% names(data))) stop('All the variables needs to be present in the data.')

@@ -12,6 +12,9 @@
 #'   numeric value (same is used for all features in \code{fx_vars}) or a named
 #'   numeric vector of \code{length(fx_vars)} (for feature-specific values). In
 #'   this case, the names must match the comment attributes in \code{fx_vars}.
+#' @param max_ngrps Integer specifying the maximum number of groups that each
+#'   feature's values/levels are allowed to be grouped into. Only used when
+#'   determinining the optimal number of groups via \code{type = 'lambdas'}.
 #' @return Data frame with the segmented data. The grouped features are added to
 #'   the original \code{data} and have a trailing underscore in their name.
 #' @examples
@@ -36,7 +39,7 @@
 #'                          values = setNames(c(7, 8, 2, 2, 3), c('ageph', 'bm', 'coverage', 'fuel', 'bm_fuel')))
 #' }
 #' @export
-segmentation <- function(fx_vars, data, type, values) {
+segmentation <- function(fx_vars, data, type, values, max_ngrps = 15) {
 
   if (! type %in% c('ngroups', 'lambdas')) stop('The type of segmentation must be ngroups or lambdas.')
 
@@ -51,7 +54,7 @@ segmentation <- function(fx_vars, data, type, values) {
     var <- fx_var %>% comment
     n_grps <- switch(type,
                      'ngroups' = values[var],
-                     'lambdas' = fx_var %>% optimal_ngroups(lambda = values[var]))
+                     'lambdas' = fx_var %>% optimal_ngroups(lambda = values[var], search_grid = seq_len(min(length(unique(fx_var$y)), max_ngrps))))
     fx_grp <- fx_var %>% group_pd(ngroups = n_grps)
 
     data <- data %>% dplyr::left_join(fx_grp[c(paste0('x', if (grepl('_', var)) 1:2), 'xgrp')],
