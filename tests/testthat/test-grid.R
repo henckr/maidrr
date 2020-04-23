@@ -33,6 +33,6 @@ test_that('an error is produced when interactions are specified wrongly', {
   expect_error(get_grid('license', mtpl_be),
                'The specified variable could not be found in the supplied data.')
   expect_error(get_grid('bool', data.frame(bool = c(TRUE, FALSE, FALSE, TRUE))),
-               'Unsupported variable type. Only integers, numerics and factors are handled by this function.')
+               'Unsupported variable type. Only integers, numerics and factors are allowed.')
 })
 
