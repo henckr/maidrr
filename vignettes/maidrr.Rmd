@@ -169,7 +169,7 @@ These functions can be used on a stand-alone basis to perform your own tailored 
 
 
 ### Segmantation of the data
-Call `segmentation(fx_vars, data, type, values)` with arguments:
+Call `segmentation(fx_vars, data, type, values, max_ngrps = 15)` with arguments:
 
 * `fx_vars`: list of data frames containing the feature effects, preferably the output of `maidrr::insights`.
 * `data`: data frame containing the original training data.
@@ -179,6 +179,7 @@ Call `segmentation(fx_vars, data, type, values)` with arguments:
 * `values`: numeric value or named numeric vector with the values for `ngroups` of `lambdas`.
     + numeric value: same value is used for all features in `fx_vars`.
     + named numeric vector: feature-specific values, must satisfy `length(values) == length(fx_vars)` and `names(values)` must be the same as the comment attributes of the effects in `fx_vars` as detemrined by `unlist(lapply(fx_vars, comment))`.
+* `max_ngrps`: integer specifying the maximum number of groups that each feature's values/levels are allowed to be grouped into. Only used when determinining the optimal number of groups via `type = 'lambdas'`.
 
 For any feature, let *n* be the unique number of observed levels/values in the data and *y* the calculated effect for each level/value. When the feature is split in *k* groups, let *g* represent the average value of *y* within the groups. A penalized loss function is defined as follows:
 $$ \frac{1}{n} \sum_{i=1}^{n} \left( y_i - g_i \right)^2 + \lambda \log(k)  \,. $$
@@ -324,18 +325,20 @@ These are of course just toy examples to illustrate the functionalty of `maidrr`
 ## Automated lambda tuning via cross-validation
 The `maidrr` workflow from black box to surrogate via `insights %>% segmentation %>% surrogate` is highly dependend on the value(s) of $\lambda$ supplied to `maidrr::segmentation`. The grouping and selection of features is entirely dependend on $\lambda$ via the penalized loss function. Any ad-hoc choice is most likely to result in a surrogate which is not really competitive with the original black box model, so it is important to choose the value(s) for $\lambda$ in an optimal way. To automate this tuning task, `maidrr` contains the `autotune(...)` function. This function iterates over a grid of $\lambda$'s, calculating cross-validation errors for each grid value, and returns an optimal surrogate GLM.
 
-Call `autotune(mfit, data, vars, target, hcut = 0.75, pred_fun = NULL, ` 
-`lambdas = as.vector(outer(seq(1, 10, 0.1), 10^(-7:3))), nfolds = 5, strat_vars = NULL, `
-`glm_par = alist(), err_fun = mse, ncores = -1)` with arguments:
+Call `autotune(mfit, data, vars, target, max_ngrps = 15, hcut = 0.75, ignr_intr = NULL,` 
+`pred_fun = NULL, lambdas = as.vector(outer(seq(1, 10, 0.1), 10^(-7:3))), nfolds = 5,`
+`strat_vars = NULL, glm_par = alist(), err_fun = mse, ncores = -1, out_pds = FALSE)` with arguments:
 
 * `mfit`: fitted model object (e.g., a "gbm" or "randomForest" object) to approximate with a surrogate.
 * `data`: data frame containing the original training data.
 * `vars`: character vector specifying which features of `data` to consider for inclusion in the surrogate. Automatic feature selection will choose the best performing subset of features, possibly with interactions.
 * `target`: string specifying the name of the target (or response) variable to model.
+* `max_ngrps`: integer specifying the maximum number of groups that each feature's values/levels are allowed to be grouped into.
 * `hcut`: numeric in the range [0,1] specifying the cut-off value for the normalized cumulative H-statistic over all two-way interactions between the features in `vars`. In a nutshell: 1) Friedman's H-statistic, measuring interaction strength, is calculated for all two-way interactions between the features in `vars`. 2) Interactions are ordered from most to least important and the normalized cumulative sum of the H-statistic is calculated. 3) The minimal set of interactions which exceeds the value of `hcut` is retained in the output.
     + `hcut = 0`: only consider the single most important interaction for inclusion in the surrogate.
     + `hcut = 1`: consider all possible two-way interactions for inclusion in the surrogate.
     + `hcut = -1`: do not consider interactions and only use main effects of the features in `vars`.
+* `ignr_intr`: optional character string specifying features to ignore when searching for meaningful interactions to incorporate in the GLM.
 * `pred_fun`: optional prediction function for the model in `mfit` to calculate feature effects, which should be of the format `function(object, newdata) mean(predict(object, newdata, ...))`. See the argument `pred.fun` in the `pdp::partial` function, on which `maidrr` relies to calculate model insights. This function allows to calculate effects for model classes which are not supported by `pdp::partial`, see this [article](https://bgreenwell.github.io/pdp/articles/pdp-extending.html).
 * `lambdas`: numeric vector with the possible $\lambda$ values to explore. The search grid is created automatically via `maidrr::lambda_grid`. This grid contains only those values of $\lambda$ that result in a unique grouping of the full set of features. A seperate grid is generated for main and interaction effects.
 * `nfolds`: integer for the number of folds to use in K-fold cross-validation.
@@ -346,6 +349,7 @@ Call `autotune(mfit, data, vars, target, hcut = 0.75, pred_fun = NULL, `
     + `wgt_mse`: weighted mean squared error loss function.
     + `poi_dev`: Poisson deviance loss function.
 * `ncores`: integer specifying the number of cores to use. The default `ncores = -1` uses all the available physical cores (not threads).
+* `out_pds`: boolean to indicate whether to add the calculated PD effects for the selected features to the output list.
 
 Let's autotune the $\lambda$ parameter on the BE portfolio:
 ```{r autotune_be, warning = FALSE}
@@ -364,12 +368,13 @@ tune_be <- gbm_be %>% autotune(data = mtpl_be,
                                ncores = -1)
 ```
 
-The output of `maidrr::autotune` is a `list` with the following four elements:
+The output of `maidrr::autotune` is a `list` with the following elements:
 
 * `slct_feat`: named vector containing the selected features (names) and the optimal number of groups for each feature (values).
 * `best_surr`: the optimal GLM surrogate, which is fit to all observations in `data`. The segmented data can be obtained via the `$data` attribute of the GLM fit.
 * `tune_main`: the cross-validation results for the main effects as a tidy data frame. The column `cv_err` contains the cross-validated error, while the columns `1:nfolds` contain the error on the validation folds.
 * `tune_intr`: the cross-validation results for the interaction effects, in the same format as `tune_main`.
+* `pd_fx`: list with the PD effects for the selected features (only present if `out_pds = TRUE`).
 
 ```{r autotune_be_out}
 tune_be
