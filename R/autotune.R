@@ -43,20 +43,24 @@
 #'   supplied to \code{glm_par}. Examples already included in the package are:
 #'   \describe{ \item{mse}{mean squared error loss function (default).}
 #'   \item{wgt_mse}{weighted mean squared error loss function.}
-#'   \item{poi_dev}{Poisson deviance loss function.} } See
-#'   \code{\link{err_fun}} for details on these predefined functions.
+#'   \item{poi_dev}{Poisson deviance loss function.} } See \code{\link{err_fun}}
+#'   for details on these predefined functions.
 #' @param ncores Integer specifying the number of cores to use. The default
 #'   \code{ncores = -1} uses all the available physical cores (not threads), as
 #'   determined by \code{parallel::detectCores(logical = 'FALSE')}.
-#' @return List with four elements: \describe{ \item{slct_feat}{named vector
-#'   containing the selected features (names) and the optimal number of groups
-#'   for each feature (values).} \item{best_surr}{the optimal GLM surrogate,
-#'   which is fit to all observations in \code{data}. The segmented data can be
-#'   obtained via the \code{$data} attribute of the GLM fit.} \item{tune_main}{
-#'   the cross-validation results for the main effects as a tidy data frame. The
-#'   column \code{cv_err} contains the cross-validated error, while the columns
-#'   \code{1:nfolds} contain the error on the validation folds.}
-#'   \item{tune_intr}{cross-validation results for the interaction effects.}}
+#' @param out_pds Boolean to indicate whether to add the calculated PD effects
+#'   for the selected features to the output list.
+#' @return List with the following elements: \describe{ \item{slct_feat}{named
+#'   vector containing the selected features (names) and the optimal number of
+#'   groups for each feature (values).} \item{best_surr}{the optimal GLM
+#'   surrogate, which is fit to all observations in \code{data}. The segmented
+#'   data can be obtained via the \code{$data} attribute of the GLM fit.}
+#'   \item{tune_main}{ the cross-validation results for the main effects as a
+#'   tidy data frame. The column \code{cv_err} contains the cross-validated
+#'   error, while the columns \code{1:nfolds} contain the error on the
+#'   validation folds.} \item{tune_intr}{cross-validation results for the
+#'   interaction effects.} \item{pd_fx}{List with the PD effects for the
+#'   selected features (only present if \code{out_pds = TRUE}).}}
 #' @examples
 #' \dontrun{
 #' data('mtpl_be')
@@ -84,7 +88,7 @@
 #'                      ncores = -1)
 #' }
 #' @export
-autotune <- function(mfit, data, vars, target, hcut = 0.75, ignr_intr = NULL, pred_fun = NULL, lambdas = as.vector(outer(seq(1, 10, 0.1), 10^(-7:3))), nfolds = 5, strat_vars = NULL, glm_par = alist(), err_fun = mse, ncores = -1) {
+autotune <- function(mfit, data, vars, target, hcut = 0.75, ignr_intr = NULL, pred_fun = NULL, lambdas = as.vector(outer(seq(1, 10, 0.1), 10^(-7:3))), nfolds = 5, strat_vars = NULL, glm_par = alist(), err_fun = mse, ncores = -1, out_pds = FALSE) {
 
   if (sum(grepl('_', vars)) > 0) stop('No underscores allowed in the variable names, these are interpreted as interactions in maidrr.')
   if (! all(vars %in% names(data))) stop('All the variables needs to be present in the data.')
@@ -181,6 +185,9 @@ autotune <- function(mfit, data, vars, target, hcut = 0.75, ignr_intr = NULL, pr
                    'best_surr' = opt_surro,
                    'tune_main' = out_main,
                    'tune_intr' = NULL)
+    # Add PD effects if asked for
+    if (out_pds) output$pd_fx <- fx_main[names(slct_main)]
+    # Output
     return(output)
   }
 
@@ -235,5 +242,8 @@ autotune <- function(mfit, data, vars, target, hcut = 0.75, ignr_intr = NULL, pr
                  'best_surr' = opt_surro,
                  'tune_main' = out_main,
                  'tune_intr' = out_intr)
+  # Add PD effects if asked for
+  if (out_pds) output$pd_fx <- c(fx_main, fx_intr)[names(slct_feat)]
+  # Output
   return(output)
 }

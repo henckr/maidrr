@@ -17,7 +17,8 @@ autotune(
   strat_vars = NULL,
   glm_par = alist(),
   err_fun = mse,
-  ncores = -1
+  ncores = -1,
+  out_pds = FALSE
 )
 }
 \arguments{
@@ -71,23 +72,28 @@ weights are determined automatically based on the \code{weights} field
 supplied to \code{glm_par}. Examples already included in the package are:
 \describe{ \item{mse}{mean squared error loss function (default).}
 \item{wgt_mse}{weighted mean squared error loss function.}
-\item{poi_dev}{Poisson deviance loss function.} } See
-\code{\link{err_fun}} for details on these predefined functions.}
+\item{poi_dev}{Poisson deviance loss function.} } See \code{\link{err_fun}}
+for details on these predefined functions.}
 
 \item{ncores}{Integer specifying the number of cores to use. The default
 \code{ncores = -1} uses all the available physical cores (not threads), as
 determined by \code{parallel::detectCores(logical = 'FALSE')}.}
+
+\item{out_pds}{Boolean to indicate whether to add the calculated PD effects
+for the selected features to the output list.}
 }
 \value{
-List with four elements: \describe{ \item{slct_feat}{named vector
-containing the selected features (names) and the optimal number of groups
-for each feature (values).} \item{best_surr}{the optimal GLM surrogate,
-which is fit to all observations in \code{data}. The segmented data can be
-obtained via the \code{$data} attribute of the GLM fit.} \item{tune_main}{
-the cross-validation results for the main effects as a tidy data frame. The
-column \code{cv_err} contains the cross-validated error, while the columns
-\code{1:nfolds} contain the error on the validation folds.}
-\item{tune_intr}{cross-validation results for the interaction effects.}}
+List with the following elements: \describe{ \item{slct_feat}{named
+vector containing the selected features (names) and the optimal number of
+groups for each feature (values).} \item{best_surr}{the optimal GLM
+surrogate, which is fit to all observations in \code{data}. The segmented
+data can be obtained via the \code{$data} attribute of the GLM fit.}
+\item{tune_main}{ the cross-validation results for the main effects as a
+tidy data frame. The column \code{cv_err} contains the cross-validated
+error, while the columns \code{1:nfolds} contain the error on the
+validation folds.} \item{tune_intr}{cross-validation results for the
+interaction effects.} \item{pd_fx}{List with the PD effects for the
+selected features (only present if \code{out_pds = TRUE}).}}
 }
 \description{
 Automated tuning process for the penalty parameter lambda, with built-in
