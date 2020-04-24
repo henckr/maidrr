@@ -146,7 +146,8 @@ autotune <- function(mfit, data, vars, target, max_ngrps = 15, hcut = 0.75, ignr
                               vars = vars,
                               data = data,
                               interactions = 'user',
-                              pred_fun = pred_fun)
+                              pred_fun = pred_fun,
+                              ncores = ncores)
   lmbd_main <- maidrr::lambda_grid(fx_vars = fx_main, lambda_range = lambdas)
 
   # Set up a cluster and iterate over the lambda grid
@@ -201,7 +202,8 @@ autotune <- function(mfit, data, vars, target, max_ngrps = 15, hcut = 0.75, ignr
                               interactions = 'auto',
                               hcut = hcut,
                               pred_fun = pred_fun,
-                              fx_in = fx_main)
+                              fx_in = fx_main,
+                              ncores = ncores)
   fx_intr <- fx_intr[grepl('_', names(fx_intr))]
   vars_intr <- names(fx_intr)
   lmbd_intr <- maidrr::lambda_grid(fx_vars = fx_intr, lambda_range = lambdas)
