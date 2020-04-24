@@ -127,7 +127,8 @@
   <span class='kw'>interactions</span> <span class='kw'>=</span> <span class='st'>"user"</span>,
   <span class='kw'>hcut</span> <span class='kw'>=</span> <span class='fl'>0.75</span>,
   <span class='kw'>pred_fun</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>fx_in</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
+  <span class='kw'>fx_in</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>ncores</span> <span class='kw'>=</span> -<span class='fl'>1</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -178,6 +179,12 @@ main effects such that only the interaction effects still need to be
 calculated. Precalculated interactions are ignored when <code>interactions
   = "auto"</code>, but can be supplied when <code>interactions = "user"</code>. It is
 important to make sure that you supply the pure interaction effects.</p></td>
+    </tr>
+    <tr>
+      <th>ncores</th>
+      <td><p>Integer specifying the number of cores to use. The default
+<code>ncores = -1</code> uses all the available physical cores (not threads), as
+determined by <code><a href='https://rdrr.io/r/parallel/detectCores.html'>parallel::detectCores(logical = 'FALSE')</a></code>.</p></td>
     </tr>
     </table>
 
