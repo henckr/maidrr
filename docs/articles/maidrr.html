@@ -292,7 +292,7 @@ text-align: justify}
 <div id="segmantation-of-the-data" class="section level3">
 <h3 class="hasAnchor">
 <a href="#segmantation-of-the-data" class="anchor"></a>Segmantation of the data</h3>
-<p>Call <code><a href="../reference/segmentation.html">segmentation(fx_vars, data, type, values)</a></code> with arguments:</p>
+<p>Call <code><a href="../reference/segmentation.html">segmentation(fx_vars, data, type, values, max_ngrps = 15)</a></code> with arguments:</p>
 <ul>
 <li>
 <code>fx_vars</code>: list of data frames containing the feature effects, preferably the output of <code><a href="../reference/insights.html">maidrr::insights</a></code>.</li>
@@ -314,6 +314,8 @@ text-align: justify}
 <li>named numeric vector: feature-specific values, must satisfy <code>length(values) == length(fx_vars)</code> and <code><a href="https://rdrr.io/r/base/names.html">names(values)</a></code> must be the same as the comment attributes of the effects in <code>fx_vars</code> as detemrined by <code><a href="https://rdrr.io/r/base/unlist.html">unlist(lapply(fx_vars, comment))</a></code>.</li>
 </ul>
 </li>
+<li>
+<code>max_ngrps</code>: integer specifying the maximum number of groups that each feature’s values/levels are allowed to be grouped into. Only used when determinining the optimal number of groups via <code>type = 'lambdas'</code>.</li>
 </ul>
 <p>For any feature, let <em>n</em> be the unique number of observed levels/values in the data and <em>y</em> the calculated effect for each level/value. When the feature is split in <em>k</em> groups, let <em>g</em> represent the average value of <em>y</em> within the groups. A penalized loss function is defined as follows: <span class="math display">\[ \frac{1}{n} \sum_{i=1}^{n} \left( y_i - g_i \right)^2 + \lambda \log(k)  \,. \]</span> The first part measures how well the effect <em>y</em> is approximated by the grouped variant <em>g</em> in the form of a mean squared error over all levels/values of the feature. The second part measures the complexity of the grouping by means of the common logarithm of the number of groups <em>k</em> for the feature. The penalty parameter <span class="math inline">\(\lambda\)</span> acts as a bias-variance trade-off. A low value will allow a lot of groups, resulting in an accurate approximation of the effect. A high value will enforce using fewer groups, resulting in a coarse approximation of the effect. For a specified value of <span class="math inline">\(\lambda\)</span>, the optimal number of groups <em>k</em> follows by minimizing the penalized loss function. The grouping in <code>maidrr</code> is done via the <code>Ckmeans.1d.dp</code> package.</p>
 <p>We segment the BE portfolio by specifying feature-specific number of groups. The grouped features are added to the <code>data</code> with a trailing underscore in their column name:</p>
@@ -587,7 +589,7 @@ text-align: justify}
 <h2 class="hasAnchor">
 <a href="#automated-lambda-tuning-via-cross-validation" class="anchor"></a>Automated lambda tuning via cross-validation</h2>
 <p>The <code>maidrr</code> workflow from black box to surrogate via <code>insights %&gt;% segmentation %&gt;% surrogate</code> is highly dependend on the value(s) of <span class="math inline">\(\lambda\)</span> supplied to <code><a href="../reference/segmentation.html">maidrr::segmentation</a></code>. The grouping and selection of features is entirely dependend on <span class="math inline">\(\lambda\)</span> via the penalized loss function. Any ad-hoc choice is most likely to result in a surrogate which is not really competitive with the original black box model, so it is important to choose the value(s) for <span class="math inline">\(\lambda\)</span> in an optimal way. To automate this tuning task, <code>maidrr</code> contains the <code><a href="../reference/autotune.html">autotune(...)</a></code> function. This function iterates over a grid of <span class="math inline">\(\lambda\)</span>’s, calculating cross-validation errors for each grid value, and returns an optimal surrogate GLM.</p>
-<p>Call <code>autotune(mfit, data, vars, target, hcut = 0.75, pred_fun = NULL,</code> <code>lambdas = as.vector(outer(seq(1, 10, 0.1), 10^(-7:3))), nfolds = 5, strat_vars = NULL,</code> <code>glm_par = alist(), err_fun = mse, ncores = -1)</code> with arguments:</p>
+<p>Call <code>autotune(mfit, data, vars, target, max_ngrps = 15, hcut = 0.75, ignr_intr = NULL,</code> <code>pred_fun = NULL, lambdas = as.vector(outer(seq(1, 10, 0.1), 10^(-7:3))), nfolds = 5,</code> <code>strat_vars = NULL, glm_par = alist(), err_fun = mse, ncores = -1, out_pds = FALSE)</code> with arguments:</p>
 <ul>
 <li>
 <code>mfit</code>: fitted model object (e.g., a “gbm” or “randomForest” object) to approximate with a surrogate.</li>
@@ -597,6 +599,8 @@ text-align: justify}
 <code>vars</code>: character vector specifying which features of <code>data</code> to consider for inclusion in the surrogate. Automatic feature selection will choose the best performing subset of features, possibly with interactions.</li>
 <li>
 <code>target</code>: string specifying the name of the target (or response) variable to model.</li>
+<li>
+<code>max_ngrps</code>: integer specifying the maximum number of groups that each feature’s values/levels are allowed to be grouped into.</li>
 <li>
 <code>hcut</code>: numeric in the range [0,1] specifying the cut-off value for the normalized cumulative H-statistic over all two-way interactions between the features in <code>vars</code>. In a nutshell: 1) Friedman’s H-statistic, measuring interaction strength, is calculated for all two-way interactions between the features in <code>vars</code>. 2) Interactions are ordered from most to least important and the normalized cumulative sum of the H-statistic is calculated. 3) The minimal set of interactions which exceeds the value of <code>hcut</code> is retained in the output.
 <ul>
@@ -608,6 +612,8 @@ text-align: justify}
 <code>hcut = -1</code>: do not consider interactions and only use main effects of the features in <code>vars</code>.</li>
 </ul>
 </li>
+<li>
+<code>ignr_intr</code>: optional character string specifying features to ignore when searching for meaningful interactions to incorporate in the GLM.</li>
 <li>
 <code>pred_fun</code>: optional prediction function for the model in <code>mfit</code> to calculate feature effects, which should be of the format <code>function(object, newdata) mean(predict(object, newdata, ...))</code>. See the argument <code>pred.fun</code> in the <code><a href="https://rdrr.io/pkg/pdp/man/partial.html">pdp::partial</a></code> function, on which <code>maidrr</code> relies to calculate model insights. This function allows to calculate effects for model classes which are not supported by <code><a href="https://rdrr.io/pkg/pdp/man/partial.html">pdp::partial</a></code>, see this <a href="https://bgreenwell.github.io/pdp/articles/pdp-extending.html">article</a>.</li>
 <li>
@@ -631,6 +637,8 @@ text-align: justify}
 </li>
 <li>
 <code>ncores</code>: integer specifying the number of cores to use. The default <code>ncores = -1</code> uses all the available physical cores (not threads).</li>
+<li>
+<code>out_pds</code>: boolean to indicate whether to add the calculated PD effects for the selected features to the output list.</li>
 </ul>
 <p>Let’s autotune the <span class="math inline">\(\lambda\)</span> parameter on the BE portfolio:</p>
 <div class="sourceCode"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span>(<span class="fl">5678</span>)
@@ -646,7 +654,7 @@ text-align: justify}
                                                <span class="kw">offset</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span>(<span class="no">expo</span>)),
                                <span class="kw">err_fun</span> <span class="kw">=</span> <span class="no">poi_dev</span>,
                                <span class="kw">ncores</span> <span class="kw">=</span> -<span class="fl">1</span>)</pre></body></html></div>
-<p>The output of <code><a href="../reference/autotune.html">maidrr::autotune</a></code> is a <code>list</code> with the following four elements:</p>
+<p>The output of <code><a href="../reference/autotune.html">maidrr::autotune</a></code> is a <code>list</code> with the following elements:</p>
 <ul>
 <li>
 <code>slct_feat</code>: named vector containing the selected features (names) and the optimal number of groups for each feature (values).</li>
@@ -656,6 +664,8 @@ text-align: justify}
 <code>tune_main</code>: the cross-validation results for the main effects as a tidy data frame. The column <code>cv_err</code> contains the cross-validated error, while the columns <code>1:nfolds</code> contain the error on the validation folds.</li>
 <li>
 <code>tune_intr</code>: the cross-validation results for the interaction effects, in the same format as <code>tune_main</code>.</li>
+<li>
+<code>pd_fx</code>: list with the PD effects for the selected features (only present if <code>out_pds = TRUE</code>).</li>
 </ul>
 <div class="sourceCode"><html><body><pre class="r"><span class="no">tune_be</span>
 <span class="co">#&gt; $slct_feat</span>

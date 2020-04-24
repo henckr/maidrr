@@ -129,14 +129,17 @@ segmentation, with low/high values resulting in a fine/coarse segmentation.</p>
   <span class='no'>data</span>,
   <span class='no'>vars</span>,
   <span class='no'>target</span>,
+  <span class='kw'>max_ngrps</span> <span class='kw'>=</span> <span class='fl'>15</span>,
   <span class='kw'>hcut</span> <span class='kw'>=</span> <span class='fl'>0.75</span>,
+  <span class='kw'>ignr_intr</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>pred_fun</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>lambdas</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/vector.html'>as.vector</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/outer.html'>outer</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span>(<span class='fl'>1</span>, <span class='fl'>10</span>, <span class='fl'>0.1</span>), <span class='fl'>10</span>^(-<span class='fl'>7</span>:<span class='fl'>3</span>))),
   <span class='kw'>nfolds</span> <span class='kw'>=</span> <span class='fl'>5</span>,
   <span class='kw'>strat_vars</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>glm_par</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>alist</a></span>(),
   <span class='kw'>err_fun</span> <span class='kw'>=</span> <span class='no'>mse</span>,
-  <span class='kw'>ncores</span> <span class='kw'>=</span> -<span class='fl'>1</span>
+  <span class='kw'>ncores</span> <span class='kw'>=</span> -<span class='fl'>1</span>,
+  <span class='kw'>out_pds</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -159,6 +162,11 @@ segmentation, with low/high values resulting in a fine/coarse segmentation.</p>
       <td><p>String specifying the target (or response) variable to model.</p></td>
     </tr>
     <tr>
+      <th>max_ngrps</th>
+      <td><p>Integer specifying the maximum number of groups that each
+feature's values/levels are allowed to be grouped into.</p></td>
+    </tr>
+    <tr>
       <th>hcut</th>
       <td><p>Numeric in the range [0,1] specifying the cut-off value for the
 normalized cumulative H-statistic over all two-way interactions, ordered
@@ -166,6 +174,11 @@ from most to least important, between the features in <code>vars</code>. Note
 that <code>hcut = 0</code> will consider the single most important interaction,
 while <code>hcut = 1</code> will consider all possible two-way interactions.
 Setting <code>hcut = -1</code> will only consider main effects in the tuning.</p></td>
+    </tr>
+    <tr>
+      <th>ignr_intr</th>
+      <td><p>Optional character string specifying features to ignore when
+searching for meaningful interactions to incorporate in the GLM.</p></td>
     </tr>
     <tr>
       <th>pred_fun</th>
@@ -212,8 +225,8 @@ supplied to <code>glm_par</code>. Examples already included in the package are:<
 <dt>mse</dt><dd><p>mean squared error loss function (default).</p></dd>
 <dt>wgt_mse</dt><dd><p>weighted mean squared error loss function.</p></dd>
 <dt>poi_dev</dt><dd><p>Poisson deviance loss function.</p></dd> 
-</dl><p>See
-<code><a href='err_fun.html'>err_fun</a></code> for details on these predefined functions.</p></td>
+</dl><p>See <code><a href='err_fun.html'>err_fun</a></code>
+for details on these predefined functions.</p></td>
     </tr>
     <tr>
       <th>ncores</th>
@@ -221,19 +234,27 @@ supplied to <code>glm_par</code>. Examples already included in the package are:<
 <code>ncores = -1</code> uses all the available physical cores (not threads), as
 determined by <code><a href='https://rdrr.io/r/parallel/detectCores.html'>parallel::detectCores(logical = 'FALSE')</a></code>.</p></td>
     </tr>
+    <tr>
+      <th>out_pds</th>
+      <td><p>Boolean to indicate whether to add the calculated PD effects
+for the selected features to the output list.</p></td>
+    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>List with four elements:</p><dl'>
-<dt>slct_feat</dt><dd><p>named vector
-containing the selected features (names) and the optimal number of groups
-for each feature (values).</p></dd> <dt>best_surr</dt><dd><p>the optimal GLM surrogate,
-which is fit to all observations in <code>data</code>. The segmented data can be
-obtained via the <code>$data</code> attribute of the GLM fit.</p></dd> <dt>tune_main</dt><dd><p>the cross-validation results for the main effects as a tidy data frame. The
-column <code>cv_err</code> contains the cross-validated error, while the columns
-<code>1:nfolds</code> contain the error on the validation folds.</p></dd>
-<dt>tune_intr</dt><dd><p>cross-validation results for the interaction effects.</p></dd>
+    <p>List with the following elements:</p><dl'>
+<dt>slct_feat</dt><dd><p>named
+vector containing the selected features (names) and the optimal number of
+groups for each feature (values).</p></dd> <dt>best_surr</dt><dd><p>the optimal GLM
+surrogate, which is fit to all observations in <code>data</code>. The segmented
+data can be obtained via the <code>$data</code> attribute of the GLM fit.</p></dd>
+<dt>tune_main</dt><dd><p>the cross-validation results for the main effects as a
+tidy data frame. The column <code>cv_err</code> contains the cross-validated
+error, while the columns <code>1:nfolds</code> contain the error on the
+validation folds.</p></dd> <dt>tune_intr</dt><dd><p>cross-validation results for the
+interaction effects.</p></dd> <dt>pd_fx</dt><dd><p>List with the PD effects for the
+selected features (only present if <code>out_pds = TRUE</code>).</p></dd>
 </dl>
 
 

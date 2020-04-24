@@ -120,7 +120,7 @@
     <p>Segmentation of observations based on the grouping of feature effects.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>segmentation</span>(<span class='no'>fx_vars</span>, <span class='no'>data</span>, <span class='no'>type</span>, <span class='no'>values</span>)</pre>
+    <pre class="usage"><span class='fu'>segmentation</span>(<span class='no'>fx_vars</span>, <span class='no'>data</span>, <span class='no'>type</span>, <span class='no'>values</span>, <span class='kw'>max_ngrps</span> <span class='kw'>=</span> <span class='fl'>15</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -147,6 +147,12 @@ penalized loss.</p></dd>
 numeric value (same is used for all features in <code>fx_vars</code>) or a named
 numeric vector of <code><a href='https://rdrr.io/r/base/length.html'>length(fx_vars)</a></code> (for feature-specific values). In
 this case, the names must match the comment attributes in <code>fx_vars</code>.</p></td>
+    </tr>
+    <tr>
+      <th>max_ngrps</th>
+      <td><p>Integer specifying the maximum number of groups that each
+feature's values/levels are allowed to be grouped into. Only used when
+determinining the optimal number of groups via <code>type = 'lambdas'</code>.</p></td>
     </tr>
     </table>
 
