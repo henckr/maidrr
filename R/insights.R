@@ -26,6 +26,9 @@
 #'   calculated. Precalculated interactions are ignored when \code{interactions
 #'   = "auto"}, but can be supplied when \code{interactions = "user"}. It is
 #'   important to make sure that you supply the pure interaction effects.
+#' @param ncores Integer specifying the number of cores to use. The default
+#'   \code{ncores = -1} uses all the available physical cores (not threads), as
+#'   determined by \code{parallel::detectCores(logical = 'FALSE')}.
 #' @return List of tidy data frames (i.e., "tibble" objects), containing the
 #'   partial dependencies for the features (and interactions) in \code{vars}.
 #' @examples
@@ -52,7 +55,7 @@
 #'                      pred_fun = gbm_fun)
 #' }
 #' @export
-insights <- function(mfit, vars, data, interactions = 'user', hcut = 0.75, pred_fun = NULL, fx_in = NULL) {
+insights <- function(mfit, vars, data, interactions = 'user', hcut = 0.75, pred_fun = NULL, fx_in = NULL, ncores = -1) {
 
   vars_main <- vars[! grepl('_', vars)]
   if (! all(vars_main %in% names(data))) stop('Some features specified in vars can not be found in the data.')
@@ -71,20 +74,29 @@ insights <- function(mfit, vars, data, interactions = 'user', hcut = 0.75, pred_
   }
 
 
-  # Get the effects for all features
+  # Initialize a list to save the results and possibly fill with supplied effects
   vars <- c(vars_main, vars_intr)
   fx_vars <- setNames(vector('list', length = length(vars)), vars)
   fx_vars[names(fx_in)] <- fx_in
-  for (v in setdiff(vars, names(fx_in))) {
-    fx_vars[[v]] <- get_pd(mfit = mfit,
-                           var = v,
-                           grid = switch(as.character(grepl('_', v)),
-                                         'FALSE' = get_grid(v, data),
-                                         'TRUE' = tidyr::expand_grid(get_grid(unlist(strsplit(v, '_'))[1], data), get_grid(unlist(strsplit(v, '_'))[2], data))),
-                           data = data,
-                           subsample = 10000,
-                           fun = pred_fun)
+
+  # Set up a cluster
+  switch(as.character(ncores),
+         '-1' = doParallel::registerDoParallel(parallel::detectCores(logical = 'FALSE')),
+         '1' = foreach::registerDoSEQ(),
+         doParallel::registerDoParallel(ncores))
+
+  # Iterate over the variables to get effects
+  fx_vars[setdiff(vars, names(fx_in))] <- foreach::foreach (v = setdiff(vars, names(fx_in))) %dopar% {
+    maidrr::get_pd(mfit = mfit,
+                   var = v,
+                   grid = switch(as.character(grepl('_', v)),
+                                 'FALSE' = maidrr::get_grid(v, data),
+                                 'TRUE' = tidyr::expand_grid(maidrr::get_grid(unlist(strsplit(v, '_'))[1], data), maidrr::get_grid(unlist(strsplit(v, '_'))[2], data))),
+                   data = data,
+                   subsample = 10000,
+                   fun = pred_fun)
   }
+  doParallel::stopImplicitCluster()
 
   # Determine which interactions to include
   if (interactions == 'auto') {

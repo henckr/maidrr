@@ -11,7 +11,8 @@ insights(
   interactions = "user",
   hcut = 0.75,
   pred_fun = NULL,
-  fx_in = NULL
+  fx_in = NULL,
+  ncores = -1
 )
 }
 \arguments{
@@ -45,6 +46,10 @@ main effects such that only the interaction effects still need to be
 calculated. Precalculated interactions are ignored when \code{interactions
   = "auto"}, but can be supplied when \code{interactions = "user"}. It is
 important to make sure that you supply the pure interaction effects.}
+
+\item{ncores}{Integer specifying the number of cores to use. The default
+\code{ncores = -1} uses all the available physical cores (not threads), as
+determined by \code{parallel::detectCores(logical = 'FALSE')}.}
 }
 \value{
 List of tidy data frames (i.e., "tibble" objects), containing the
