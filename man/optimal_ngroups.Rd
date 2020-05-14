@@ -7,7 +7,8 @@
 optimal_ngroups(
   pd,
   lambda,
-  search_grid = seq_len(min(length(unique(pd$y)), 15))
+  max_ngrps = 15,
+  search_grid = seq_len(min(length(unique(pd$y)), max_ngrps))
 )
 }
 \arguments{
@@ -16,6 +17,9 @@ optimal_ngroups(
 
 \item{lambda}{The complexity parameter in the penalized loss function (see
 the accompanying research paper or R vignette for details on this aspect).}
+
+\item{max_ngrps}{Integer specifying the maximum number of groups that each
+feature's values/levels are allowed to be grouped into.}
 
 \item{search_grid}{Integer vector containing the grid of values to evaluate
 for the number of groups.}

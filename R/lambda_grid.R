@@ -3,6 +3,8 @@
 #' Create a grid of lambda values that result in a unique grouping.
 #'
 #' @param fx_vars List of data frames containing the feature effects.
+#' @param max_ngrps Integer specifying the maximum number of groups that each
+#'   feature's values/levels are allowed to be grouped into.
 #' @param lambda_range Numeric vector of possible values for lambda.
 #' @return Tidy data frame (i.e., a "tibble" object) with the lambda grid. The
 #'   first column contains the lambda values from \code{lambda_range} which
@@ -29,7 +31,7 @@
 #'             lambda_grid
 #' }
 #' @export
-lambda_grid <- function(fx_vars, lambda_range = as.vector(outer(seq(1, 10, 0.1), 10^(-7:3)))) {
+lambda_grid <- function(fx_vars, max_ngrps = 15, lambda_range = as.vector(outer(seq(1, 10, 0.1), 10^(-7:3)))) {
 
   # Split the main and interaction effects
   vars <- unlist(lapply(fx_vars, comment))
@@ -40,7 +42,7 @@ lambda_grid <- function(fx_vars, lambda_range = as.vector(outer(seq(1, 10, 0.1),
   if (length(vars_main) > 0) {
     grid_main <- tibble::tibble(lambda_main = lambda_range)
     for (v in vars_main) {
-      grid_main <- grid_main %>% dplyr::mutate(!!v := purrr::map2_int(lambda_range, v, function(x, y) optimal_ngroups(fx_vars[[y]], x)))
+      grid_main <- grid_main %>% dplyr::mutate(!!v := purrr::map2_int(lambda_range, v, function(x, y) optimal_ngroups(fx_vars[[y]], x, max_ngrps = max_ngrps)))
     }
     grid_main <- grid_main %>% dplyr::distinct(!!! rlang::syms(setdiff(names(grid_main), 'lambda_main')), .keep_all = TRUE)
   }
@@ -49,7 +51,7 @@ lambda_grid <- function(fx_vars, lambda_range = as.vector(outer(seq(1, 10, 0.1),
   if (length(vars_intr) > 0) {
     grid_intr <- tibble::tibble(lambda_intr = lambda_range)
     for (v in vars_intr) {
-      grid_intr <- grid_intr %>% dplyr::mutate(!!v := purrr::map2_int(lambda_range, v, function(x, y) optimal_ngroups(fx_vars[[y]], x)))
+      grid_intr <- grid_intr %>% dplyr::mutate(!!v := purrr::map2_int(lambda_range, v, function(x, y) optimal_ngroups(fx_vars[[y]], x, max_ngrps = max_ngrps)))
     }
     grid_intr <- grid_intr %>% dplyr::distinct(!!! rlang::syms(setdiff(names(grid_intr), 'lambda_intr')), .keep_all = TRUE)
   }

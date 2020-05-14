@@ -6,11 +6,15 @@
 \usage{
 lambda_grid(
   fx_vars,
+  max_ngrps = 15,
   lambda_range = as.vector(outer(seq(1, 10, 0.1), 10^(-7:3)))
 )
 }
 \arguments{
 \item{fx_vars}{List of data frames containing the feature effects.}
+
+\item{max_ngrps}{Integer specifying the maximum number of groups that each
+feature's values/levels are allowed to be grouped into.}
 
 \item{lambda_range}{Numeric vector of possible values for lambda.}
 }

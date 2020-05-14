@@ -6,6 +6,8 @@
 #'   \code{\link{get_pd}}.
 #' @param lambda The complexity parameter in the penalized loss function (see
 #'   the accompanying research paper or R vignette for details on this aspect).
+#' @param max_ngrps Integer specifying the maximum number of groups that each
+#'   feature's values/levels are allowed to be grouped into.
 #' @param search_grid Integer vector containing the grid of values to evaluate
 #'   for the number of groups.
 #' @return Integer specifying the optimal number of groups. When multiple
@@ -31,7 +33,7 @@
 #'             optimal_ngroups(lambda = 0.00001)
 #' }
 #' @export
-optimal_ngroups <- function(pd, lambda, search_grid = seq_len(min(length(unique(pd$y)), 15))) {
+optimal_ngroups <- function(pd, lambda, max_ngrps = 15, search_grid = seq_len(min(length(unique(pd$y)), max_ngrps))) {
 
   if (length(search_grid) == 0) stop('Search grid should contain at least one value.')
   if (! all(search_grid %>% purrr::map(function(x) x%%1 == 0) %>% unlist)) {
