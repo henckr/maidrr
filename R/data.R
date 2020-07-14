@@ -3,7 +3,7 @@
 #' Dataset containing the number of motor insurance claims and several
 #' characteristics for a portfolio of around 163000 policyholders.
 #'
-#' @format A data frame with 163212 rows and 14 variables: \describe{
+#' @format A data frame with 163210 rows and 13 variables: \describe{
 #'   \item{id}{policyholder id}
 #'   \item{nclaims}{number of claims}
 #'   \item{expo}{exposure period, as a fraction of a year}
@@ -16,10 +16,8 @@
 #'   \item{bm}{bonus-malus level, higher is worse}
 #'   \item{power}{horsepower of the vehicle, in kilowatt}
 #'   \item{agec}{age of the vehicle, in years}
-#'   \item{long}{longitude coordinate of the center of
-#'   the municipality of residence, in degrees}
-#'   \item{lat}{latitude coordinate of the center of
-#'   the municipality of residence, in degrees}
+#'   \item{postcode}{first two digits of the postal code of
+#'   the municipality of residence}
 #' }
 'mtpl_be'
 

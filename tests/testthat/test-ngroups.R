@@ -7,7 +7,7 @@ if (!requireNamespace('gbm', quietly = TRUE)) {
        call. = FALSE)
 }
 data('mtpl_be')
-features <- setdiff(names(mtpl_be),c('id', 'nclaims', 'expo'))
+features <- setdiff(names(mtpl_be),c('id', 'nclaims', 'expo', 'postcode'))
 set.seed(12345)
 gbm_fit <- gbm::gbm(as.formula(paste('nclaims ~',
                                      paste(features, sep = ' ', collapse = ' + '))),
@@ -56,5 +56,5 @@ test_that('a warning is produced when there are non-integers present in the sear
                                                    data = mtpl_be,
                                                    subsample = 1000,
                                                    fun = gbm_fun) %>%
-                                  optimal_ngroups(lambda = 0.0001, search_grid = c(1, 2.3, 5.6, 8))), 5)
+                                  optimal_ngroups(lambda = 0.0001, search_grid = c(1, 2.3, 5.6, 8))), 2)
 })

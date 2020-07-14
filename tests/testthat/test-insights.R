@@ -7,7 +7,7 @@ if (!requireNamespace('gbm', quietly = TRUE)) {
        call. = FALSE)
 }
 data('mtpl_be')
-features <- setdiff(names(mtpl_be),c('id', 'nclaims', 'expo'))
+features <- setdiff(names(mtpl_be),c('id', 'nclaims', 'expo', 'postcode'))
 set.seed(12345)
 gbm_fit <- gbm::gbm(as.formula(paste('nclaims ~',
                                      paste(features, sep = ' ', collapse = ' + '))),
@@ -170,9 +170,9 @@ test_that('effects supplied in fx_in are handled properly when interactions = "a
                                        fx_in = fx_pre[c('bm', 'coverage', 'fuel')])
 
   expect_is(mdl_insights, 'list')
-  expect_equal(length(mdl_insights), 4)
+  expect_equal(length(mdl_insights), 5)
   expect_is(mdl_insights[[1]], 'tbl_df')
-  expect_true(all(unlist(lapply(mdl_insights, comment)) %in% c('bm', 'coverage', 'fuel', 'bm_fuel')))
+  expect_true(all(unlist(lapply(mdl_insights, comment)) %in% c('bm', 'coverage', 'fuel', 'bm_fuel', 'coverage_fuel')))
   expect_equal(sum(unlist(lapply(mdl_insights, function(i) sum(is.na(i))))), 0)
   expect_true(all(unlist(lapply(mdl_insights, function(i) sum(i$w))) == nrow(mtpl_be)))
 })

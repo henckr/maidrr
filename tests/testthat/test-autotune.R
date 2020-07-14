@@ -7,7 +7,7 @@ if (!requireNamespace('gbm', quietly = TRUE)) {
        call. = FALSE)
 }
 data('mtpl_be')
-features <- setdiff(names(mtpl_be),c('id', 'nclaims', 'expo'))
+features <- setdiff(names(mtpl_be),c('id', 'nclaims', 'expo', 'postcode'))
 set.seed(12345)
 gbm_fit <- gbm::gbm(as.formula(paste('nclaims ~',
                                      paste(features, sep = ' ', collapse = ' + '))),

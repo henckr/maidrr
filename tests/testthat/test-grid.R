@@ -12,7 +12,6 @@ test_that('output is of the expected format', {
   expect_match(names(get_grid('ageph', mtpl_be)), 'ageph')
   expect_is(get_grid('ageph', mtpl_be)$ageph, 'integer')
   expect_is(get_grid('fuel', mtpl_be)$fuel, 'factor')
-  expect_is(get_grid('long', mtpl_be)$long, 'numeric')
   expect_is(get_grid('power', mtpl_fr)$power, 'ordered')
 })
 
