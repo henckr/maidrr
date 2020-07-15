@@ -99,21 +99,20 @@ text-align: justify}
 <a href="#mtpl-datasets-included-in-maidrr" class="anchor"></a>MTPL datasets included in maidrr</h2>
 <p>The <code>maidrr</code> package contains two motor third party liability (MTPL) insurance portfolios, one from Belgium (BE) and one from France (FR). Both will be used to illustrate the use of <code>maidrr</code>, so let’s have a quick look at them:</p>
 <div class="sourceCode"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="st">'mtpl_be'</span>) ; <span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span>(<span class="no">mtpl_be</span>, <span class="kw">give.attr</span> <span class="kw">=</span> <span class="fl">FALSE</span>)
-<span class="co">#&gt; 'data.frame':    163212 obs. of  14 variables:</span>
+<span class="co">#&gt; 'data.frame':    163210 obs. of  13 variables:</span>
 <span class="co">#&gt;  $ id      : int  1 2 3 4 5 6 7 8 9 10 ...</span>
 <span class="co">#&gt;  $ expo    : num  1 1 1 1 0.0466 ...</span>
-<span class="co">#&gt;  $ nclaims : int  1 0 0 0 1 0 1 0 0 0 ...</span>
-<span class="co">#&gt;  $ coverage: Factor w/ 3 levels "TPL","TPL+","TPL++": 1 2 1 1 1 1 3 1 3 2 ...</span>
-<span class="co">#&gt;  $ ageph   : int  50 64 60 77 28 26 26 58 59 34 ...</span>
+<span class="co">#&gt;  $ nclaims : int  1 0 0 0 1 0 1 0 0 1 ...</span>
+<span class="co">#&gt;  $ coverage: Ord.factor w/ 3 levels "TPL"&lt;"TPL+"&lt;"TPL++": 1 2 1 1 1 1 3 1 2 3 ...</span>
+<span class="co">#&gt;  $ ageph   : int  50 64 60 77 28 26 26 58 43 70 ...</span>
 <span class="co">#&gt;  $ sex     : Factor w/ 2 levels "female","male": 2 1 2 2 1 2 2 1 2 2 ...</span>
-<span class="co">#&gt;  $ bm      : int  5 5 0 0 9 11 11 11 0 7 ...</span>
-<span class="co">#&gt;  $ power   : int  77 66 70 57 70 70 55 47 98 74 ...</span>
-<span class="co">#&gt;  $ agec    : int  12 3 10 15 7 12 8 14 3 6 ...</span>
+<span class="co">#&gt;  $ bm      : int  5 5 0 0 9 11 11 11 3 0 ...</span>
+<span class="co">#&gt;  $ power   : int  77 66 70 57 70 70 55 47 65 76 ...</span>
+<span class="co">#&gt;  $ agec    : int  12 3 10 15 7 12 8 14 6 2 ...</span>
 <span class="co">#&gt;  $ fuel    : Factor w/ 2 levels "gasoline","diesel": 1 1 2 1 1 1 1 1 1 1 ...</span>
 <span class="co">#&gt;  $ use     : Factor w/ 2 levels "private","work": 1 1 1 1 1 1 1 1 1 1 ...</span>
-<span class="co">#&gt;  $ fleet   : Factor w/ 2 levels "0","1": 1 1 1 1 1 1 1 1 1 1 ...</span>
-<span class="co">#&gt;  $ long    : num  4.36 4.36 4.36 4.36 4.36 ...</span>
-<span class="co">#&gt;  $ lat     : num  50.8 50.8 50.8 50.8 50.8 ...</span>
+<span class="co">#&gt;  $ fleet   : Factor w/ 2 levels "no","yes": 1 1 1 1 1 1 1 1 1 1 ...</span>
+<span class="co">#&gt;  $ postcode: Factor w/ 80 levels "10","11","12",..: 1 1 1 1 1 1 1 1 1 1 ...</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="st">'mtpl_fr'</span>) ; <span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span>(<span class="no">mtpl_fr</span>, <span class="kw">give.attr</span> <span class="kw">=</span> <span class="fl">FALSE</span>)
 <span class="co">#&gt; 'data.frame':    668892 obs. of  11 variables:</span>
 <span class="co">#&gt;  $ id     : int  139 190 414 424 463 606 622 811 830 975 ...</span>
@@ -209,48 +208,48 @@ text-align: justify}
 <span class="co">#&gt; [1] "list"</span>
 <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span>(<span class="no">fx_vars_be</span>)
 <span class="co">#&gt;  [1] "ageph"       "power"       "bm"          "agec"        "coverage"   </span>
-<span class="co">#&gt;  [6] "fuel"        "sex"         "fleet"       "use"         "bm_agec"    </span>
-<span class="co">#&gt; [11] "ageph_power" "power_bm"    "power_agec"</span></pre></body></html></div>
+<span class="co">#&gt;  [6] "fuel"        "sex"         "fleet"       "use"         "ageph_bm"   </span>
+<span class="co">#&gt; [11] "power_bm"    "bm_agec"     "ageph_power" "power_agec"</span></pre></body></html></div>
 <p>The <code>tibble</code> for a main effect has 3 columns with standardized names <code>x, y, w</code> containing the feature value, the effect and the number of observations counts in <code>data</code> respectively:</p>
 <div class="sourceCode"><html><body><pre class="r"><span class="no">fx_vars_be</span><span class="kw">[[</span><span class="st">'ageph'</span>]]
 <span class="co">#&gt; # A tibble: 78 x 3</span>
 <span class="co">#&gt;        x     y     w</span>
 <span class="co">#&gt;    &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt;</span>
 <span class="co">#&gt;  1    18 0.184    16</span>
-<span class="co">#&gt;  2    19 0.184   116</span>
-<span class="co">#&gt;  3    20 0.184   393</span>
-<span class="co">#&gt;  4    21 0.176   700</span>
+<span class="co">#&gt;  2    19 0.181   116</span>
+<span class="co">#&gt;  3    20 0.180   393</span>
+<span class="co">#&gt;  4    21 0.173   700</span>
 <span class="co">#&gt;  5    22 0.171   952</span>
-<span class="co">#&gt;  6    23 0.171  1379</span>
-<span class="co">#&gt;  7    24 0.170  2028</span>
+<span class="co">#&gt;  6    23 0.170  1379</span>
+<span class="co">#&gt;  7    24 0.169  2028</span>
 <span class="co">#&gt;  8    25 0.168  2672</span>
-<span class="co">#&gt;  9    26 0.166  2941</span>
-<span class="co">#&gt; 10    27 0.160  3130</span>
+<span class="co">#&gt;  9    26 0.165  2941</span>
+<span class="co">#&gt; 10    27 0.158  3130</span>
 <span class="co">#&gt; # … with 68 more rows</span></pre></body></html></div>
 <p>The <code>tibble</code> for an interaction effect has 4 columns with standardized names <code>x1, x2, y, w</code> containing the feature values, the effect and the number of observations counts in <code>data</code> respectively:</p>
 <div class="sourceCode"><html><body><pre class="r"><span class="no">fx_vars_be</span><span class="kw">[[</span><span class="st">'bm_agec'</span>]]
 <span class="co">#&gt; # A tibble: 1,127 x 4</span>
-<span class="co">#&gt;       x1    x2      y     w</span>
-<span class="co">#&gt;    &lt;int&gt; &lt;int&gt;  &lt;dbl&gt; &lt;dbl&gt;</span>
-<span class="co">#&gt;  1     0     0 0.0161    85</span>
-<span class="co">#&gt;  2     0     1 0.0147  3356</span>
-<span class="co">#&gt;  3     0     2 0.0162  5509</span>
-<span class="co">#&gt;  4     0     3 0.0162  5024</span>
-<span class="co">#&gt;  5     0     4 0.0157  5065</span>
-<span class="co">#&gt;  6     0     5 0.0155  4996</span>
-<span class="co">#&gt;  7     0     6 0.0148  5795</span>
-<span class="co">#&gt;  8     0     7 0.0139  5283</span>
-<span class="co">#&gt;  9     0     8 0.0132  5321</span>
-<span class="co">#&gt; 10     0     9 0.0131  4624</span>
+<span class="co">#&gt;       x1    x2       y     w</span>
+<span class="co">#&gt;    &lt;int&gt; &lt;int&gt;   &lt;dbl&gt; &lt;dbl&gt;</span>
+<span class="co">#&gt;  1     0     0 0.00942    85</span>
+<span class="co">#&gt;  2     0     1 0.00708  3356</span>
+<span class="co">#&gt;  3     0     2 0.00942  5509</span>
+<span class="co">#&gt;  4     0     3 0.00942  5024</span>
+<span class="co">#&gt;  5     0     4 0.00836  5065</span>
+<span class="co">#&gt;  6     0     5 0.00834  4996</span>
+<span class="co">#&gt;  7     0     6 0.00770  5795</span>
+<span class="co">#&gt;  8     0     7 0.00687  5283</span>
+<span class="co">#&gt;  9     0     8 0.00656  5321</span>
+<span class="co">#&gt; 10     0     9 0.00633  4624</span>
 <span class="co">#&gt; # … with 1,117 more rows</span></pre></body></html></div>
 <p>Notice the difference in the scale of the feature effect, contained in column <code>y</code>, for a main and interaction effect. This comes from the fact that the interaction effects are calculated as pure interactions by subtracting both 1D effects from the 2D effect. Therefore, the main effects will be centered around the observed claim frequency, which equals to 0.1392 for the BE portfolio, while the interaction effects are centered around zero:</p>
 <div class="sourceCode"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/unlist.html">unlist</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span>(<span class="no">fx_vars_be</span>, <span class="kw">function</span>(<span class="no">fx</span>) <span class="fu"><a href="https://rdrr.io/r/stats/weighted.mean.html">weighted.mean</a></span>(<span class="no">fx</span>$<span class="no">y</span>, <span class="no">fx</span>$<span class="no">w</span>)))
 <span class="co">#&gt;         ageph         power            bm          agec      coverage </span>
-<span class="co">#&gt;  0.1397163010  0.1404287758  0.1395011937  0.1412762579  0.1409791926 </span>
-<span class="co">#&gt;          fuel           sex         fleet           use       bm_agec </span>
-<span class="co">#&gt;  0.1402338538  0.1410778289  0.1405665604  0.1406186455  0.0143610014 </span>
-<span class="co">#&gt;   ageph_power      power_bm    power_agec </span>
-<span class="co">#&gt;  0.0001271602 -0.0073319238  0.0016279122</span></pre></body></html></div>
+<span class="co">#&gt;  0.1391378818  0.1413828447  0.1392205403  0.1410044538  0.1407400071 </span>
+<span class="co">#&gt;          fuel           sex         fleet           use      ageph_bm </span>
+<span class="co">#&gt;  0.1395687496  0.1407080804  0.1404085487  0.1408609926  0.0047011084 </span>
+<span class="co">#&gt;      power_bm       bm_agec   ageph_power    power_agec </span>
+<span class="co">#&gt; -0.0077431629  0.0075745816  0.0002420642  0.0014502535</span></pre></body></html></div>
 <p>The function <code><a href="../reference/plot_pd.html">maidrr::plot_pd</a></code> can be used to visualize the effects. This is illustrated for a continuous feature in the BE portfolio and a categorical feature in the FR portfolio, where darker colours or larger dots indicate higher observation counts for those feature values:</p>
 <div class="sourceCode"><html><body><pre class="r"><span class="kw pkg">gridExtra</span><span class="kw ns">::</span><span class="fu"><a href="https://rdrr.io/pkg/gridExtra/man/arrangeGrob.html">grid.arrange</a></span>(<span class="no">fx_vars_be</span><span class="kw">[[</span><span class="st">'ageph'</span>]] <span class="kw">%&gt;%</span> <span class="no">plot_pd</span> + <span class="fu">ggtitle</span>(<span class="st">'MTPL BE'</span>),
                         <span class="no">fx_vars_fr</span><span class="kw">[[</span><span class="st">'brand'</span>]] <span class="kw">%&gt;%</span> <span class="no">plot_pd</span> + <span class="fu">ggtitle</span>(<span class="st">'MTPL FR'</span>),
@@ -323,7 +322,7 @@ text-align: justify}
 <p>We segment the BE portfolio by specifying feature-specific number of groups. The grouped features are added to the <code>data</code> with a trailing underscore in their column name:</p>
 <div class="sourceCode"><html><body><pre class="r"><span class="no">gr_data_be</span> <span class="kw">&lt;-</span> <span class="no">fx_vars_be</span> <span class="kw">%&gt;%</span> <span class="fu"><a href="../reference/segmentation.html">segmentation</a></span>(<span class="kw">data</span> <span class="kw">=</span> <span class="no">mtpl_be</span>,
                                           <span class="kw">type</span> <span class="kw">=</span> <span class="st">'ngroups'</span>,
-                                          <span class="kw">values</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/setNames.html">setNames</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">7</span>, <span class="fl">4</span>, <span class="fl">9</span>, <span class="fl">3</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">2</span>),
+                                          <span class="kw">values</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/setNames.html">setNames</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">7</span>, <span class="fl">4</span>, <span class="fl">9</span>, <span class="fl">3</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">2</span>, <span class="fl">3</span>),
                                                             <span class="fu"><a href="https://rdrr.io/r/base/unlist.html">unlist</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span>(<span class="no">fx_vars_be</span>, <span class="no">comment</span>))))
 <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(<span class="no">gr_data_be</span>)
 <span class="co">#&gt;   id       expo nclaims coverage ageph    sex bm power agec     fuel     use</span>
@@ -333,34 +332,34 @@ text-align: justify}
 <span class="co">#&gt; 4  4 1.00000000       0      TPL    77   male  0    57   15 gasoline private</span>
 <span class="co">#&gt; 5  5 0.04657534       1      TPL    28 female  9    70    7 gasoline private</span>
 <span class="co">#&gt; 6  6 1.00000000       0      TPL    26   male 11    70   12 gasoline private</span>
-<span class="co">#&gt;   fleet    long      lat   ageph_    power_      bm_   agec_     coverage_</span>
-<span class="co">#&gt; 1     0 4.35522 50.84539 [50, 57] [68, 170]   [3, 6] [0, 17]         {TPL}</span>
-<span class="co">#&gt; 2     0 4.35522 50.84539 [58, 95]  [39, 67]   [3, 6] [0, 17] {TPL+, TPL++}</span>
-<span class="co">#&gt; 3     0 4.35522 50.84539 [58, 95] [68, 170]   [0, 1] [0, 17]         {TPL}</span>
-<span class="co">#&gt; 4     0 4.35522 50.84539 [58, 95]  [39, 67]   [0, 1] [0, 17]         {TPL}</span>
-<span class="co">#&gt; 5     0 4.35522 50.84539 [27, 29] [68, 170]   [8, 9] [0, 17]         {TPL}</span>
-<span class="co">#&gt; 6     0 4.35522 50.84539 [21, 26] [68, 170] [11, 15] [0, 17]         {TPL}</span>
-<span class="co">#&gt;        fuel_     sex_ fleet_            use_ bm_agec_ ageph_power_ power_bm_</span>
-<span class="co">#&gt; 1 {gasoline}   {male} {0, 1} {private, work}        2            2         2</span>
-<span class="co">#&gt; 2 {gasoline} {female} {0, 1} {private, work}        2            2         2</span>
-<span class="co">#&gt; 3   {diesel}   {male} {0, 1} {private, work}        2            2         2</span>
-<span class="co">#&gt; 4 {gasoline}   {male} {0, 1} {private, work}        2            2         2</span>
-<span class="co">#&gt; 5 {gasoline} {female} {0, 1} {private, work}        2            2         2</span>
-<span class="co">#&gt; 6 {gasoline}   {male} {0, 1} {private, work}        2            2         3</span>
+<span class="co">#&gt;   fleet postcode   ageph_    power_      bm_   agec_ coverage_      fuel_</span>
+<span class="co">#&gt; 1    no       10 [50, 57] [45, 170]   [3, 6] [0, 16]    [1, 1] {gasoline}</span>
+<span class="co">#&gt; 2    no       10 [58, 95] [45, 170]   [3, 6] [0, 16]    [2, 3] {gasoline}</span>
+<span class="co">#&gt; 3    no       10 [58, 95] [45, 170]   [0, 1] [0, 16]    [1, 1]   {diesel}</span>
+<span class="co">#&gt; 4    no       10 [58, 95] [45, 170]   [0, 1] [0, 16]    [1, 1] {gasoline}</span>
+<span class="co">#&gt; 5    no       10 [27, 29] [45, 170]   [7, 9] [0, 16]    [1, 1] {gasoline}</span>
+<span class="co">#&gt; 6    no       10 [21, 26] [45, 170] [11, 13] [0, 16]    [1, 1] {gasoline}</span>
+<span class="co">#&gt;       sex_    fleet_            use_ ageph_bm_ power_bm_ bm_agec_ ageph_power_</span>
+<span class="co">#&gt; 1   {male} {no, yes} {private, work}         2         2        3            1</span>
+<span class="co">#&gt; 2 {female} {no, yes} {private, work}         2         2        3            1</span>
+<span class="co">#&gt; 3   {male} {no, yes} {private, work}         2         1        3            1</span>
+<span class="co">#&gt; 4   {male} {no, yes} {private, work}         2         2        3            1</span>
+<span class="co">#&gt; 5 {female} {no, yes} {private, work}         2         2        3            1</span>
+<span class="co">#&gt; 6   {male} {no, yes} {private, work}         2         2        4            1</span>
 <span class="co">#&gt;   power_agec_</span>
-<span class="co">#&gt; 1           2</span>
-<span class="co">#&gt; 2           2</span>
-<span class="co">#&gt; 3           2</span>
-<span class="co">#&gt; 4           2</span>
-<span class="co">#&gt; 5           2</span>
-<span class="co">#&gt; 6           2</span>
+<span class="co">#&gt; 1           3</span>
+<span class="co">#&gt; 2           3</span>
+<span class="co">#&gt; 3           3</span>
+<span class="co">#&gt; 4           3</span>
+<span class="co">#&gt; 5           3</span>
+<span class="co">#&gt; 6           3</span>
 <span class="no">gr_data_be</span> <span class="kw">%&gt;%</span>
   <span class="kw pkg">dplyr</span><span class="kw ns">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(<span class="kw pkg">dplyr</span><span class="kw ns">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/reexports.html">ends_with</a></span>(<span class="st">'_'</span>)) <span class="kw">%&gt;%</span>
   <span class="kw pkg">dplyr</span><span class="kw ns">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise_all.html">summarise_all</a></span>(<span class="kw pkg">dplyr</span><span class="kw ns">::</span><span class="no"><a href="https://dplyr.tidyverse.org/reference/n_distinct.html">n_distinct</a></span>)
-<span class="co">#&gt;   ageph_ power_ bm_ agec_ coverage_ fuel_ sex_ fleet_ use_ bm_agec_</span>
-<span class="co">#&gt; 1      7      4   9     3         2     2    2      1    1        2</span>
-<span class="co">#&gt;   ageph_power_ power_bm_ power_agec_</span>
-<span class="co">#&gt; 1            3         4           2</span></pre></body></html></div>
+<span class="co">#&gt;   ageph_ power_ bm_ agec_ coverage_ fuel_ sex_ fleet_ use_ ageph_bm_ power_bm_</span>
+<span class="co">#&gt; 1      7      4   9     3         2     2    2      1    1         2         3</span>
+<span class="co">#&gt;   bm_agec_ ageph_power_ power_agec_</span>
+<span class="co">#&gt; 1        4            2           3</span></pre></body></html></div>
 <p>We segment the FR portfolio by specifying a single <span class="math inline">\(\lambda\)</span> value for all features and the interaction:</p>
 <div class="sourceCode"><html><body><pre class="r"><span class="no">gr_data_fr</span> <span class="kw">&lt;-</span> <span class="no">fx_vars_fr</span> <span class="kw">%&gt;%</span> <span class="fu"><a href="../reference/segmentation.html">segmentation</a></span>(<span class="kw">data</span> <span class="kw">=</span> <span class="no">mtpl_fr</span>,
                                           <span class="kw">type</span> <span class="kw">=</span> <span class="st">'lambdas'</span>,
@@ -369,7 +368,7 @@ text-align: justify}
   <span class="kw pkg">dplyr</span><span class="kw ns">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(<span class="kw pkg">dplyr</span><span class="kw ns">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/reexports.html">ends_with</a></span>(<span class="st">'_'</span>)) <span class="kw">%&gt;%</span>
   <span class="kw pkg">dplyr</span><span class="kw ns">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise_all.html">summarise_all</a></span>(<span class="kw pkg">dplyr</span><span class="kw ns">::</span><span class="no"><a href="https://dplyr.tidyverse.org/reference/n_distinct.html">n_distinct</a></span>)
 <span class="co">#&gt;   ageph_ power_ bm_ agec_ fuel_ brand_ region_ power_fuel_</span>
-<span class="co">#&gt; 1      9      2  15     3     2      5       8           1</span></pre></body></html></div>
+<span class="co">#&gt; 1      9      2  15     3     2      6       8           1</span></pre></body></html></div>
 <p>It is possible to use <code><a href="../reference/plot_pd.html">maidrr::plot_pd</a></code> with <code><a href="../reference/group_pd.html">maidrr::group_pd</a></code> to get an idea of the actual grouping of features:</p>
 <div class="sourceCode"><html><body><pre class="r"><span class="kw pkg">gridExtra</span><span class="kw ns">::</span><span class="fu"><a href="https://rdrr.io/pkg/gridExtra/man/arrangeGrob.html">grid.arrange</a></span>(<span class="no">fx_vars_be</span><span class="kw">[[</span><span class="st">'ageph'</span>]] <span class="kw">%&gt;%</span> <span class="fu"><a href="../reference/group_pd.html">group_pd</a></span>(<span class="kw">ngroups</span> <span class="kw">=</span> <span class="fl">7</span>) <span class="kw">%&gt;%</span> <span class="no">plot_pd</span> + <span class="fu">ggtitle</span>(<span class="st">'MTPL BE'</span>),
                         <span class="no">fx_vars_fr</span><span class="kw">[[</span><span class="st">'brand'</span>]] <span class="kw">%&gt;%</span> <span class="fu"><a href="../reference/group_pd.html">group_pd</a></span>(<span class="kw">ngroups</span> <span class="kw">=</span> <span class="fl">5</span>) <span class="kw">%&gt;%</span> <span class="no">plot_pd</span> + <span class="fu">ggtitle</span>(<span class="st">'MTPL FR'</span>),
@@ -419,13 +418,14 @@ text-align: justify}
   <span class="no">unlist</span> <span class="kw">%&gt;%</span> <span class="no">which</span> <span class="kw">%&gt;%</span> <span class="no">names</span>
 <span class="no">features_be</span>
 <span class="co">#&gt;  [1] "ageph_"       "power_"       "bm_"          "agec_"        "coverage_"   </span>
-<span class="co">#&gt;  [6] "fuel_"        "sex_"         "bm_agec_"     "ageph_power_" "power_bm_"   </span>
-<span class="co">#&gt; [11] "power_agec_"</span>
+<span class="co">#&gt;  [6] "fuel_"        "sex_"         "ageph_bm_"    "power_bm_"    "bm_agec_"    </span>
+<span class="co">#&gt; [11] "ageph_power_" "power_agec_"</span>
 
 <span class="no">formula_be</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/formula.html">as.formula</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span>(<span class="st">'nclaims ~'</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span>(<span class="no">features_be</span>, <span class="kw">collapse</span> <span class="kw">=</span> <span class="st">'+'</span>)))
 <span class="no">formula_be</span>
 <span class="co">#&gt; nclaims ~ ageph_ + power_ + bm_ + agec_ + coverage_ + fuel_ + </span>
-<span class="co">#&gt;     sex_ + bm_agec_ + ageph_power_ + power_bm_ + power_agec_</span>
+<span class="co">#&gt;     sex_ + ageph_bm_ + power_bm_ + bm_agec_ + ageph_power_ + </span>
+<span class="co">#&gt;     power_agec_</span>
 
 <span class="no">glm_be</span> <span class="kw">&lt;-</span> <span class="no">gr_data_be</span> <span class="kw">%&gt;%</span> <span class="fu"><a href="../reference/surrogate.html">surrogate</a></span>(<span class="kw">par_list</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">alist</a></span>(<span class="kw">formula</span> <span class="kw">=</span> <span class="no">formula_be</span>,
                                                     <span class="kw">family</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/family.html">poisson</a></span>(<span class="kw">link</span> <span class="kw">=</span> <span class="st">'log'</span>),
@@ -436,30 +436,26 @@ text-align: justify}
 <span class="co">#&gt;     offset = log(expo))</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Coefficients:</span>
-<span class="co">#&gt;            (Intercept)          ageph_[18, 20]          ageph_[21, 26]  </span>
-<span class="co">#&gt;               -2.19832                 0.34812                 0.18439  </span>
-<span class="co">#&gt;         ageph_[27, 29]          ageph_[30, 31]          ageph_[50, 57]  </span>
-<span class="co">#&gt;                0.10251                 0.04566                -0.07404  </span>
-<span class="co">#&gt;         ageph_[58, 95]          power_[10, 38]        power_[173, 243]  </span>
-<span class="co">#&gt;               -0.22054                -0.14413                 0.92671  </span>
-<span class="co">#&gt;        power_[68, 170]             bm_[10, 10]             bm_[11, 15]  </span>
-<span class="co">#&gt;                0.10959                 0.59858                 0.78451  </span>
-<span class="co">#&gt;            bm_[16, 17]             bm_[18, 22]               bm_[2, 2]  </span>
-<span class="co">#&gt;                0.94017                 0.95645                 0.15215  </span>
-<span class="co">#&gt;              bm_[3, 6]               bm_[7, 7]               bm_[8, 9]  </span>
-<span class="co">#&gt;                0.31476                 0.43245                 0.48204  </span>
-<span class="co">#&gt;          agec_[18, 29]           agec_[30, 48]  coverage_{TPL+, TPL++}  </span>
-<span class="co">#&gt;               -0.29664                -1.70068                -0.07476  </span>
-<span class="co">#&gt;          fuel_{diesel}            sex_{female}               bm_agec_1  </span>
-<span class="co">#&gt;                0.15278                 0.02158                -0.56058  </span>
-<span class="co">#&gt;          ageph_power_1           ageph_power_3              power_bm_1  </span>
-<span class="co">#&gt;               -0.15247                 0.55170                -0.04152  </span>
-<span class="co">#&gt;             power_bm_3              power_bm_4            power_agec_1  </span>
-<span class="co">#&gt;                0.05409                -0.01740                -5.59508  </span>
+<span class="co">#&gt;      (Intercept)    ageph_[18, 20]    ageph_[21, 26]    ageph_[27, 29]  </span>
+<span class="co">#&gt;         -2.15011           0.31840           0.17751           0.10415  </span>
+<span class="co">#&gt;   ageph_[30, 34]    ageph_[50, 57]    ageph_[58, 95]    power_[10, 44]  </span>
+<span class="co">#&gt;          0.02506          -0.07009          -0.21766          -0.11401  </span>
+<span class="co">#&gt; power_[173, 190]  power_[191, 243]       bm_[10, 10]       bm_[11, 13]  </span>
+<span class="co">#&gt;          0.69204           0.90979           0.60588           0.80310  </span>
+<span class="co">#&gt;      bm_[14, 15]       bm_[16, 17]       bm_[18, 22]         bm_[2, 2]  </span>
+<span class="co">#&gt;          0.88277           0.99713           1.00049           0.14921  </span>
+<span class="co">#&gt;        bm_[3, 6]         bm_[7, 9]     agec_[17, 27]     agec_[28, 48]  </span>
+<span class="co">#&gt;          0.30985           0.46746          -0.23962          -1.17518  </span>
+<span class="co">#&gt;  coverage_[2, 3]     fuel_{diesel}      sex_{female}        ageph_bm_1  </span>
+<span class="co">#&gt;         -0.05820           0.14644           0.01365          -0.75437  </span>
+<span class="co">#&gt;       power_bm_1        power_bm_3         bm_agec_1         bm_agec_2  </span>
+<span class="co">#&gt;         -0.02698           0.13837          -8.48634          -0.22720  </span>
+<span class="co">#&gt;        bm_agec_4     ageph_power_2      power_agec_1      power_agec_2  </span>
+<span class="co">#&gt;          0.05071           0.53276          -9.11280          -0.02316  </span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; Degrees of Freedom: 163211 Total (i.e. Null);  163182 Residual</span>
-<span class="co">#&gt; Null Deviance:       89880 </span>
-<span class="co">#&gt; Residual Deviance: 87140     AIC: 124900</span></pre></body></html></div>
+<span class="co">#&gt; Degrees of Freedom: 163209 Total (i.e. Null);  163178 Residual</span>
+<span class="co">#&gt; Null Deviance:       89870 </span>
+<span class="co">#&gt; Residual Deviance: 87130     AIC: 124900</span></pre></body></html></div>
 <p>Some conclusions can be drawn fast and easily from the fitted GLM coeffients:</p>
 <ul>
 <li>young policyholders are more risky compared to the older ones,</li>
@@ -490,48 +486,50 @@ text-align: justify}
 <span class="co">#&gt;     offset = log(expo))</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Coefficients:</span>
-<span class="co">#&gt;                      (Intercept)                    ageph_[18, 19]  </span>
-<span class="co">#&gt;                         -3.00517                           0.25375  </span>
-<span class="co">#&gt;                   ageph_[20, 20]                    ageph_[21, 22]  </span>
-<span class="co">#&gt;                          0.04351                          -0.15163  </span>
-<span class="co">#&gt;                   ageph_[23, 35]                    ageph_[36, 38]  </span>
-<span class="co">#&gt;                         -0.39965                          -0.22046  </span>
-<span class="co">#&gt;                   ageph_[39, 40]                    ageph_[41, 42]  </span>
-<span class="co">#&gt;                         -0.17761                          -0.08060  </span>
-<span class="co">#&gt;                   ageph_[43, 43]                     power_[6, 12]  </span>
-<span class="co">#&gt;                         -0.01839                           0.17762  </span>
-<span class="co">#&gt;                    bm_[101, 107]                     bm_[108, 120]  </span>
-<span class="co">#&gt;                          1.88995                           1.95790  </span>
-<span class="co">#&gt;                    bm_[121, 124]                     bm_[125, 144]  </span>
-<span class="co">#&gt;                          2.35288                           2.24336  </span>
-<span class="co">#&gt;                    bm_[147, 185]                     bm_[187, 230]  </span>
-<span class="co">#&gt;                          2.37733                           2.96728  </span>
-<span class="co">#&gt;                      bm_[55, 57]                       bm_[58, 60]  </span>
-<span class="co">#&gt;                          0.46495                           0.71669  </span>
-<span class="co">#&gt;                      bm_[61, 62]                       bm_[63, 76]  </span>
-<span class="co">#&gt;                          1.56905                           0.74449  </span>
-<span class="co">#&gt;                      bm_[77, 77]                       bm_[78, 90]  </span>
-<span class="co">#&gt;                          1.89663                           0.91610  </span>
-<span class="co">#&gt;                      bm_[91, 95]                      bm_[96, 100]  </span>
-<span class="co">#&gt;                          1.15974                           1.56836  </span>
-<span class="co">#&gt;                    agec_[13, 15]                    agec_[16, 100]  </span>
-<span class="co">#&gt;                         -0.20759                          -0.36434  </span>
-<span class="co">#&gt;                    fuel_{diesel}          brand_{B10, B11, B3, B5}  </span>
-<span class="co">#&gt;                          0.14003                           0.08195  </span>
-<span class="co">#&gt;                      brand_{B12}                   brand_{B13, B6}  </span>
-<span class="co">#&gt;                         -0.24574                           0.03356  </span>
-<span class="co">#&gt;                      brand_{B14}                 region_{R11, R22}  </span>
-<span class="co">#&gt;                         -0.19237                           0.20565  </span>
-<span class="co">#&gt;      region_{R21, R23, R25, R43}                 region_{R31, R42}  </span>
-<span class="co">#&gt;                          0.03975                           0.14085  </span>
-<span class="co">#&gt; region_{R52, R53, R54, R72, R94}                 region_{R73, R83}  </span>
-<span class="co">#&gt;                          0.08455                          -0.14305  </span>
-<span class="co">#&gt;                region_{R74, R93}                      region_{R82}  </span>
-<span class="co">#&gt;                          0.23422                           0.30333  </span>
+<span class="co">#&gt;                           (Intercept)                         ageph_[18, 19]  </span>
+<span class="co">#&gt;                              -3.00548                                0.25085  </span>
+<span class="co">#&gt;                        ageph_[20, 20]                         ageph_[21, 22]  </span>
+<span class="co">#&gt;                               0.04277                               -0.14930  </span>
+<span class="co">#&gt;                        ageph_[23, 34]                         ageph_[35, 37]  </span>
+<span class="co">#&gt;                              -0.41031                               -0.24509  </span>
+<span class="co">#&gt;                        ageph_[38, 40]                         ageph_[41, 42]  </span>
+<span class="co">#&gt;                              -0.19183                               -0.08053  </span>
+<span class="co">#&gt;                        ageph_[43, 43]                          power_[6, 12]  </span>
+<span class="co">#&gt;                              -0.01682                                0.17128  </span>
+<span class="co">#&gt;                         bm_[101, 108]                          bm_[109, 120]  </span>
+<span class="co">#&gt;                               1.89261                                1.96181  </span>
+<span class="co">#&gt;                         bm_[121, 124]                          bm_[125, 144]  </span>
+<span class="co">#&gt;                               2.36421                                2.24518  </span>
+<span class="co">#&gt;                         bm_[147, 187]                          bm_[190, 230]  </span>
+<span class="co">#&gt;                               2.38877                                3.13180  </span>
+<span class="co">#&gt;                           bm_[55, 57]                            bm_[58, 60]  </span>
+<span class="co">#&gt;                               0.46472                                0.71702  </span>
+<span class="co">#&gt;                           bm_[61, 62]                            bm_[63, 76]  </span>
+<span class="co">#&gt;                               1.56772                                0.74622  </span>
+<span class="co">#&gt;                           bm_[77, 78]                            bm_[79, 90]  </span>
+<span class="co">#&gt;                               1.78228                                0.90464  </span>
+<span class="co">#&gt;                           bm_[91, 95]                           bm_[96, 100]  </span>
+<span class="co">#&gt;                               1.16089                                1.57041  </span>
+<span class="co">#&gt;                         agec_[13, 17]                         agec_[18, 100]  </span>
+<span class="co">#&gt;                              -0.21860                               -0.50146  </span>
+<span class="co">#&gt;                         fuel_{diesel}               brand_{B10, B13, B3, B5}  </span>
+<span class="co">#&gt;                               0.14005                                0.06438  </span>
+<span class="co">#&gt;                           brand_{B11}                            brand_{B12}  </span>
+<span class="co">#&gt;                               0.20716                               -0.24479  </span>
+<span class="co">#&gt;                           brand_{B14}                             brand_{B6}  </span>
+<span class="co">#&gt;                              -0.19256                                0.03532  </span>
+<span class="co">#&gt;                     region_{R11, R22}  region_{R25, R52, R53, R54, R72, R94}  </span>
+<span class="co">#&gt;                               0.20513                                0.08152  </span>
+<span class="co">#&gt;                     region_{R31, R42}                      region_{R41, R91}  </span>
+<span class="co">#&gt;                               0.14083                                0.01022  </span>
+<span class="co">#&gt;                     region_{R73, R83}                      region_{R74, R93}  </span>
+<span class="co">#&gt;                              -0.14202                                0.23394  </span>
+<span class="co">#&gt;                          region_{R82}  </span>
+<span class="co">#&gt;                               0.30199  </span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; Degrees of Freedom: 668891 Total (i.e. Null);  668854 Residual</span>
+<span class="co">#&gt; Degrees of Freedom: 668891 Total (i.e. Null);  668853 Residual</span>
 <span class="co">#&gt; Null Deviance:       170500 </span>
-<span class="co">#&gt; Residual Deviance: 161500    AIC: 212300</span></pre></body></html></div>
+<span class="co">#&gt; Residual Deviance: 161400    AIC: 212200</span></pre></body></html></div>
 <p>Global model conclusions can again be drawn from the fitted GLM coefficients. However, let’s turn the focus on explaining predictions for individual observations in the next section.</p>
 </div>
 <div id="explaining-the-predictions" class="section level3">
@@ -556,13 +554,13 @@ text-align: justify}
 <p>Let’s explain the prediction made by the BE GLM for two policyholders (id 34 and 4938). Notice that the prediction for the former is below the intercept of the GLM, while it is more than doubled for the latter. Why is this the case? The low risk for id 34 is mainly thanks to a low bonus-malus level and high age. Driving a high powered car increases the risk on the other hand. The high risk for id 4938 is mainly due to a high bonus-malus level and young age. Note that these contributions and confidence intervals are shown on the response scale after taking the invere link function of the coefficients. For a Poisson GLM with <code>log</code>-link function this implies applying the <code>exp</code> function on the coefficients, with contributions on the multiplicative response scale and a value of 1 indicating no contribution.</p>
 <div class="sourceCode"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span>(<span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span>(<span class="no">glm_be</span>)[<span class="st">'(Intercept)'</span>])
 <span class="co">#&gt; (Intercept) </span>
-<span class="co">#&gt;   0.1109892</span>
+<span class="co">#&gt;   0.1164716</span>
 <span class="no">glm_be</span> <span class="kw">%&gt;%</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span>(<span class="kw">newdata</span> <span class="kw">=</span> <span class="no">gr_data_be</span>[<span class="fl">34</span>, ], <span class="kw">type</span> <span class="kw">=</span> <span class="st">'response'</span>) / <span class="no">gr_data_be</span>[<span class="fl">34</span>, <span class="st">'expo'</span>]
-<span class="co">#&gt;         34 </span>
-<span class="co">#&gt; 0.09217816</span>
+<span class="co">#&gt;        34 </span>
+<span class="co">#&gt; 0.1364615</span>
 <span class="no">glm_be</span> <span class="kw">%&gt;%</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span>(<span class="kw">newdata</span> <span class="kw">=</span> <span class="no">gr_data_be</span>[<span class="fl">4938</span>, ], <span class="kw">type</span> <span class="kw">=</span> <span class="st">'response'</span>) / <span class="no">gr_data_be</span>[<span class="fl">4938</span>, <span class="st">'expo'</span>]
 <span class="co">#&gt;      4938 </span>
-<span class="co">#&gt; 0.2518014</span>
+<span class="co">#&gt; 0.1084649</span>
 
 <span class="kw pkg">gridExtra</span><span class="kw ns">::</span><span class="fu"><a href="https://rdrr.io/pkg/gridExtra/man/arrangeGrob.html">grid.arrange</a></span>(<span class="no">glm_be</span> <span class="kw">%&gt;%</span> <span class="fu"><a href="../reference/explain.html">explain</a></span>(<span class="kw">instance</span> <span class="kw">=</span> <span class="no">gr_data_be</span>[<span class="fl">34</span>, ]) + <span class="fu">ggtitle</span>(<span class="st">'ID 34'</span>),
                         <span class="no">glm_be</span> <span class="kw">%&gt;%</span> <span class="fu"><a href="../reference/explain.html">explain</a></span>(<span class="kw">instance</span> <span class="kw">=</span> <span class="no">gr_data_be</span>[<span class="fl">4938</span>, ]) + <span class="fu">ggtitle</span>(<span class="st">'ID 4938'</span>),
@@ -571,13 +569,13 @@ text-align: justify}
 <p>We can follow the same approach for the FR GLM for two policyholders (id 34 and 4938). The prediction for the former is below the GLM intercept, while it is more than doubled for the latter. Why is this the case? The low risk for id 34 is mainly thanks to a low bonus-malus level and driving a car of brand B12 (we have seen this before in the PD effect). The high risk for id 4938 is mainly driven by a high bonus-malus level.</p>
 <div class="sourceCode"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span>(<span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span>(<span class="no">glm_fr</span>)[<span class="st">'(Intercept)'</span>])
 <span class="co">#&gt; (Intercept) </span>
-<span class="co">#&gt;  0.04953016</span>
+<span class="co">#&gt;  0.04951487</span>
 <span class="no">glm_fr</span> <span class="kw">%&gt;%</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span>(<span class="kw">newdata</span> <span class="kw">=</span> <span class="no">gr_data_fr</span>[<span class="fl">34</span>, ], <span class="kw">type</span> <span class="kw">=</span> <span class="st">'response'</span>) / <span class="no">gr_data_fr</span>[<span class="fl">34</span>, <span class="st">'expo'</span>]
 <span class="co">#&gt;         34 </span>
-<span class="co">#&gt; 0.03873885</span>
+<span class="co">#&gt; 0.03916181</span>
 <span class="no">glm_fr</span> <span class="kw">%&gt;%</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span>(<span class="kw">newdata</span> <span class="kw">=</span> <span class="no">gr_data_fr</span>[<span class="fl">4938</span>, ], <span class="kw">type</span> <span class="kw">=</span> <span class="st">'response'</span>) / <span class="no">gr_data_fr</span>[<span class="fl">4938</span>, <span class="st">'expo'</span>]
 <span class="co">#&gt;      4938 </span>
-<span class="co">#&gt; 0.1046914</span>
+<span class="co">#&gt; 0.1045311</span>
 
 <span class="kw pkg">gridExtra</span><span class="kw ns">::</span><span class="fu"><a href="https://rdrr.io/pkg/gridExtra/man/arrangeGrob.html">grid.arrange</a></span>(<span class="no">glm_fr</span> <span class="kw">%&gt;%</span> <span class="fu"><a href="../reference/explain.html">explain</a></span>(<span class="kw">instance</span> <span class="kw">=</span> <span class="no">gr_data_fr</span>[<span class="fl">34</span>, ]) + <span class="fu">ggtitle</span>(<span class="st">'ID 34'</span>),
                         <span class="no">glm_fr</span> <span class="kw">%&gt;%</span> <span class="fu"><a href="../reference/explain.html">explain</a></span>(<span class="kw">instance</span> <span class="kw">=</span> <span class="no">gr_data_fr</span>[<span class="fl">4938</span>, ]) + <span class="fu">ggtitle</span>(<span class="st">'ID 4938'</span>),
@@ -671,102 +669,86 @@ text-align: justify}
 </ul>
 <div class="sourceCode"><html><body><pre class="r"><span class="no">tune_be</span>
 <span class="co">#&gt; $slct_feat</span>
-<span class="co">#&gt;       ageph       power          bm        agec        fuel     bm_agec </span>
-<span class="co">#&gt;           8           9          12           5           2           5 </span>
-<span class="co">#&gt; ageph_power    power_bm </span>
-<span class="co">#&gt;           5           7 </span>
+<span class="co">#&gt;       ageph       power          bm        agec    coverage        fuel </span>
+<span class="co">#&gt;           8          11          13           6           2           2 </span>
+<span class="co">#&gt;    ageph_bm    power_bm     bm_agec ageph_power </span>
+<span class="co">#&gt;           3           6           4           3 </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; $best_surr</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; Call:  glm(formula = nclaims ~ 1 + ageph_ + power_ + bm_ + agec_ + fuel_ + </span>
-<span class="co">#&gt;     bm_agec_ + ageph_power_ + power_bm_, family = poisson(link = "log"), </span>
-<span class="co">#&gt;     data = data, offset = log(expo))</span>
+<span class="co">#&gt; Call:  glm(formula = nclaims ~ 1 + ageph_ + power_ + bm_ + agec_ + coverage_ + </span>
+<span class="co">#&gt;     fuel_ + ageph_bm_ + power_bm_ + bm_agec_ + ageph_power_, </span>
+<span class="co">#&gt;     family = poisson(link = "log"), data = data, offset = log(expo))</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Coefficients:</span>
-<span class="co">#&gt;      (Intercept)    ageph_[18, 20]    ageph_[21, 21]    ageph_[22, 26]  </span>
-<span class="co">#&gt;        -2.221037          0.345512          0.227091          0.165859  </span>
-<span class="co">#&gt;   ageph_[27, 29]    ageph_[30, 31]    ageph_[50, 57]    ageph_[58, 95]  </span>
-<span class="co">#&gt;         0.085189          0.029335         -0.077138         -0.231097  </span>
-<span class="co">#&gt;   power_[10, 33]  power_[101, 140]  power_[141, 170]  power_[173, 184]  </span>
-<span class="co">#&gt;        -0.146664          0.157926          0.314601          0.885155  </span>
-<span class="co">#&gt; power_[190, 243]    power_[34, 38]    power_[39, 44]   power_[68, 100]  </span>
-<span class="co">#&gt;         1.035518         -0.062037         -0.037632          0.119632  </span>
-<span class="co">#&gt;        bm_[1, 1]       bm_[10, 10]       bm_[11, 13]       bm_[14, 15]  </span>
-<span class="co">#&gt;         0.116665          0.665807          0.776818          0.851777  </span>
-<span class="co">#&gt;      bm_[16, 17]       bm_[18, 22]         bm_[2, 2]         bm_[3, 5]  </span>
-<span class="co">#&gt;         0.945374          0.956184          0.183380          0.321261  </span>
-<span class="co">#&gt;        bm_[6, 6]         bm_[7, 7]         bm_[8, 9]       agec_[0, 1]  </span>
-<span class="co">#&gt;         0.382210          0.455965          0.542698          0.170450  </span>
-<span class="co">#&gt;    agec_[18, 29]       agec_[2, 5]     agec_[30, 48]     fuel_{diesel}  </span>
-<span class="co">#&gt;        -0.278210         -0.070014         -1.706916          0.149285  </span>
-<span class="co">#&gt;        bm_agec_2         bm_agec_3         bm_agec_5     ageph_power_1  </span>
-<span class="co">#&gt;        -0.545768         -0.134153          0.154437         -0.211970  </span>
-<span class="co">#&gt;    ageph_power_3     ageph_power_4     ageph_power_5        power_bm_1  </span>
-<span class="co">#&gt;         0.064931          0.560979          0.808275         -0.153419  </span>
-<span class="co">#&gt;       power_bm_2        power_bm_4        power_bm_5        power_bm_6  </span>
-<span class="co">#&gt;        -0.075525         -0.043317          0.103786         -0.251433  </span>
-<span class="co">#&gt;       power_bm_7  </span>
-<span class="co">#&gt;        -0.002169  </span>
+<span class="co">#&gt;      (Intercept)    ageph_[18, 20]    ageph_[21, 26]    ageph_[27, 29]  </span>
+<span class="co">#&gt;         -2.24060           0.31740           0.16065           0.09698  </span>
+<span class="co">#&gt;   ageph_[30, 34]    ageph_[50, 55]    ageph_[56, 57]    ageph_[58, 95]  </span>
+<span class="co">#&gt;          0.02646          -0.05837          -0.07197          -0.20319  </span>
+<span class="co">#&gt;   power_[10, 33]  power_[100, 140]  power_[141, 170]  power_[173, 180]  </span>
+<span class="co">#&gt;         -0.18119           0.14301           0.32615           1.59231  </span>
+<span class="co">#&gt; power_[183, 184]  power_[190, 190]  power_[191, 243]    power_[34, 38]  </span>
+<span class="co">#&gt;         -0.33991          -9.24485           1.01483          -0.07334  </span>
+<span class="co">#&gt;   power_[39, 44]    power_[67, 99]         bm_[1, 1]       bm_[10, 10]  </span>
+<span class="co">#&gt;         -0.05038           0.11495           0.12608           0.63425  </span>
+<span class="co">#&gt;      bm_[11, 13]       bm_[14, 15]       bm_[16, 17]       bm_[18, 19]  </span>
+<span class="co">#&gt;          0.82718           0.90160           1.01547           1.08043  </span>
+<span class="co">#&gt;        bm_[2, 2]       bm_[20, 22]         bm_[3, 5]         bm_[6, 6]  </span>
+<span class="co">#&gt;          0.18287           0.87123           0.32010           0.38112  </span>
+<span class="co">#&gt;        bm_[7, 7]         bm_[8, 9]       agec_[0, 1]     agec_[17, 18]  </span>
+<span class="co">#&gt;          0.46756           0.51775           0.17576          -0.17843  </span>
+<span class="co">#&gt;    agec_[19, 27]       agec_[2, 5]     agec_[28, 48]   coverage_[2, 3]  </span>
+<span class="co">#&gt;         -0.35013          -0.05484          -1.18839          -0.06221  </span>
+<span class="co">#&gt;    fuel_{diesel}        ageph_bm_1        ageph_bm_3        power_bm_1  </span>
+<span class="co">#&gt;          0.15146          -0.75276           0.06298          -0.05216  </span>
+<span class="co">#&gt;       power_bm_3        power_bm_4        power_bm_5        power_bm_6  </span>
+<span class="co">#&gt;          0.05105           0.07002           0.34149          -0.34556  </span>
+<span class="co">#&gt;        bm_agec_1         bm_agec_2         bm_agec_4     ageph_power_1  </span>
+<span class="co">#&gt;         -8.43938          -0.19868           0.02998          -0.05196  </span>
+<span class="co">#&gt;    ageph_power_3  </span>
+<span class="co">#&gt;          0.48535  </span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; Degrees of Freedom: 163211 Total (i.e. Null);  163167 Residual</span>
-<span class="co">#&gt; Null Deviance:       89880 </span>
-<span class="co">#&gt; Residual Deviance: 86980     AIC: 124800</span>
+<span class="co">#&gt; Degrees of Freedom: 163209 Total (i.e. Null);  163161 Residual</span>
+<span class="co">#&gt; Null Deviance:       89870 </span>
+<span class="co">#&gt; Residual Deviance: 86960     AIC: 124700</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; $tune_main</span>
-<span class="co">#&gt; # A tibble: 53 x 16</span>
+<span class="co">#&gt; # A tibble: 47 x 16</span>
 <span class="co">#&gt;    lambda_main ageph power    bm  agec coverage  fuel   sex fleet   use   `1`</span>
 <span class="co">#&gt;          &lt;dbl&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;dbl&gt;</span>
-<span class="co">#&gt;  1  0.000008       8     9    12     5        1     2     1     1     1 0.535</span>
-<span class="co">#&gt;  2  0.0000082      7     8    12     5        1     2     1     1     1 0.535</span>
-<span class="co">#&gt;  3  0.0000052      9    10    12     6        2     2     1     1     1 0.535</span>
-<span class="co">#&gt;  4  0.00000500    10    10    12     6        2     2     1     1     1 0.535</span>
-<span class="co">#&gt;  5  0.0000045     14    11    12     6        2     2     1     1     1 0.535</span>
-<span class="co">#&gt;  6  0.0000048     14    10    12     6        2     2     1     1     1 0.535</span>
-<span class="co">#&gt;  7  0.0000072      8    10    12     5        1     2     1     1     1 0.535</span>
-<span class="co">#&gt;  8  0.000010       6     7    12     4        1     2     1     1     1 0.535</span>
-<span class="co">#&gt;  9  0.0000061      8    10    12     6        1     2     1     1     1 0.535</span>
-<span class="co">#&gt; 10  0.00000950     7     7    12     4        1     2     1     1     1 0.535</span>
-<span class="co">#&gt; # … with 43 more rows, and 5 more variables: `2` &lt;dbl&gt;, `3` &lt;dbl&gt;, `4` &lt;dbl&gt;,</span>
+<span class="co">#&gt;  1  0.0000066      8    11    13     6        2     2     1     1     1 0.534</span>
+<span class="co">#&gt;  2  0.0000048     13    12    13     6        2     2     1     1     1 0.534</span>
+<span class="co">#&gt;  3  0.0000047     13    12    14     6        2     2     1     1     1 0.534</span>
+<span class="co">#&gt;  4  0.00000570    10    11    13     6        2     2     1     1     1 0.534</span>
+<span class="co">#&gt;  5  0.0000056     10    12    13     6        2     2     1     1     1 0.534</span>
+<span class="co">#&gt;  6  0.00000910     6    11    13     6        1     2     1     1     1 0.534</span>
+<span class="co">#&gt;  7  0.0000085      7    11    13     6        1     2     1     1     1 0.534</span>
+<span class="co">#&gt;  8  0.00000190    15    15    15     9        2     2     1     2     1 0.534</span>
+<span class="co">#&gt;  9  0.0000011     15    15    15     9        2     2     2     2     1 0.534</span>
+<span class="co">#&gt; 10  0.00000210    15    14    15     9        2     2     1     2     1 0.534</span>
+<span class="co">#&gt; # … with 37 more rows, and 5 more variables: `2` &lt;dbl&gt;, `3` &lt;dbl&gt;, `4` &lt;dbl&gt;,</span>
 <span class="co">#&gt; #   `5` &lt;dbl&gt;, cv_err &lt;dbl&gt;</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; $tune_intr</span>
-<span class="co">#&gt; # A tibble: 37 x 10</span>
-<span class="co">#&gt;    lambda_intr bm_agec ageph_power power_bm   `1`   `2`   `3`   `4`   `5` cv_err</span>
-<span class="co">#&gt;          &lt;dbl&gt;   &lt;int&gt;       &lt;int&gt;    &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;</span>
-<span class="co">#&gt;  1    0.000029       5           5        7 0.535 0.534 0.533 0.533 0.533  0.534</span>
-<span class="co">#&gt;  2    0.00003        5           5        6 0.535 0.534 0.533 0.533 0.533  0.534</span>
-<span class="co">#&gt;  3    0.000041       5           4        6 0.535 0.534 0.533 0.533 0.533  0.534</span>
-<span class="co">#&gt;  4    0.000058       5           4        4 0.535 0.534 0.533 0.533 0.533  0.534</span>
-<span class="co">#&gt;  5    0.00006        5           3        4 0.535 0.534 0.533 0.533 0.533  0.534</span>
-<span class="co">#&gt;  6    0.000043       5           4        5 0.535 0.534 0.533 0.533 0.533  0.534</span>
-<span class="co">#&gt;  7    0.000086       5           2        4 0.535 0.534 0.533 0.533 0.533  0.534</span>
-<span class="co">#&gt;  8    0.000096       3           2        4 0.535 0.534 0.533 0.533 0.533  0.534</span>
-<span class="co">#&gt;  9    0.000025       6           7        7 0.535 0.534 0.533 0.534 0.533  0.534</span>
-<span class="co">#&gt; 10    0.000018       7           7        8 0.535 0.534 0.533 0.534 0.533  0.534</span>
-<span class="co">#&gt; # … with 27 more rows</span></pre></body></html></div>
-<p>Let’s also autotune the <span class="math inline">\(\lambda\)</span> parameter on the FR portfolio:</p>
-<div class="sourceCode"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span>(<span class="fl">5678</span>)
-<span class="no">tune_fr</span> <span class="kw">&lt;-</span> <span class="no">gbm_fr</span> <span class="kw">%&gt;%</span> <span class="fu"><a href="../reference/autotune.html">autotune</a></span>(<span class="kw">data</span> <span class="kw">=</span> <span class="no">mtpl_fr</span>,
-                               <span class="kw">vars</span> <span class="kw">=</span> <span class="no">gbm_fr</span>$<span class="no">var.names</span>,
-                               <span class="kw">target</span> <span class="kw">=</span> <span class="st">'nclaims'</span>,
-                               <span class="kw">hcut</span> <span class="kw">=</span> <span class="fl">0.75</span>,
-                               <span class="kw">pred_fun</span> <span class="kw">=</span> <span class="no">gbm_fun</span>,
-                               <span class="kw">lambdas</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html">as.vector</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/outer.html">outer</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span>(<span class="fl">1</span>, <span class="fl">10</span>, <span class="fl">0.1</span>), <span class="fl">10</span>^(-<span class="fl">7</span>:<span class="fl">3</span>))),
-                               <span class="kw">nfolds</span> <span class="kw">=</span> <span class="fl">5</span>,
-                               <span class="kw">strat_vars</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">'nclaims'</span>, <span class="st">'expo'</span>),
-                               <span class="kw">glm_par</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">alist</a></span>(<span class="kw">family</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/family.html">poisson</a></span>(<span class="kw">link</span> <span class="kw">=</span> <span class="st">'log'</span>),
-                                               <span class="kw">offset</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span>(<span class="no">expo</span>)),
-                               <span class="kw">err_fun</span> <span class="kw">=</span> <span class="no">poi_dev</span>,
-                               <span class="kw">ncores</span> <span class="kw">=</span> -<span class="fl">1</span>)</pre></body></html></div>
+<span class="co">#&gt; # A tibble: 44 x 11</span>
+<span class="co">#&gt;    lambda_intr ageph_bm power_bm bm_agec ageph_power   `1`   `2`   `3`   `4`</span>
+<span class="co">#&gt;          &lt;dbl&gt;    &lt;int&gt;    &lt;int&gt;   &lt;int&gt;       &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;</span>
+<span class="co">#&gt;  1    0.00004         3        6       4           3 0.534 0.533 0.532 0.534</span>
+<span class="co">#&gt;  2    0.000024        5        7       5           4 0.534 0.533 0.533 0.533</span>
+<span class="co">#&gt;  3    0.00002         5        9       5           5 0.534 0.533 0.533 0.534</span>
+<span class="co">#&gt;  4    0.00003         5        6       5           4 0.534 0.533 0.533 0.533</span>
+<span class="co">#&gt;  5    0.000022        5        9       5           4 0.534 0.533 0.533 0.534</span>
+<span class="co">#&gt;  6    0.000039        3        6       5           3 0.534 0.533 0.533 0.534</span>
+<span class="co">#&gt;  7    0.000036        3        6       5           4 0.534 0.533 0.533 0.533</span>
+<span class="co">#&gt;  8    0.000019        5        9       6           5 0.534 0.533 0.533 0.534</span>
+<span class="co">#&gt;  9    0.00005         3        6       3           3 0.534 0.533 0.533 0.534</span>
+<span class="co">#&gt; 10    0.000051        3        6       3           2 0.534 0.533 0.533 0.534</span>
+<span class="co">#&gt; # … with 34 more rows, and 2 more variables: `5` &lt;dbl&gt;, cv_err &lt;dbl&gt;</span></pre></body></html></div>
 <p>These are the optimal groupings obtained for the effects that were shown earlier in this vignette:</p>
 <div class="sourceCode"><html><body><pre class="r"><span class="kw pkg">gridExtra</span><span class="kw ns">::</span><span class="fu"><a href="https://rdrr.io/pkg/gridExtra/man/arrangeGrob.html">grid.arrange</a></span>(<span class="no">fx_vars_be</span><span class="kw">[[</span><span class="st">'ageph'</span>]] <span class="kw">%&gt;%</span> <span class="fu"><a href="../reference/group_pd.html">group_pd</a></span>(<span class="kw">ngroups</span> <span class="kw">=</span> <span class="no">tune_be</span>$<span class="no">slct_feat</span>[<span class="st">'ageph'</span>]) <span class="kw">%&gt;%</span> <span class="no">plot_pd</span> + <span class="fu">ggtitle</span>(<span class="st">'MTPL BE'</span>),
-                        <span class="no">fx_vars_fr</span><span class="kw">[[</span><span class="st">'brand'</span>]] <span class="kw">%&gt;%</span> <span class="fu"><a href="../reference/group_pd.html">group_pd</a></span>(<span class="kw">ngroups</span> <span class="kw">=</span> <span class="no">tune_fr</span>$<span class="no">slct_feat</span>[<span class="st">'brand'</span>]) <span class="kw">%&gt;%</span> <span class="no">plot_pd</span> + <span class="fu">ggtitle</span>(<span class="st">'MTPL FR'</span>),
+                        <span class="no">fx_vars_be</span><span class="kw">[[</span><span class="st">'ageph_power'</span>]] <span class="kw">%&gt;%</span> <span class="fu"><a href="../reference/group_pd.html">group_pd</a></span>(<span class="kw">ngroups</span> <span class="kw">=</span> <span class="no">tune_be</span>$<span class="no">slct_feat</span>[<span class="st">'ageph_power'</span>]) <span class="kw">%&gt;%</span> <span class="no">plot_pd</span> + <span class="fu">ggtitle</span>(<span class="st">'MTPL BE'</span>),
                         <span class="kw">ncol</span> <span class="kw">=</span> <span class="fl">2</span>)</pre></body></html></div>
 <p><img src="maidrr_files/figure-html/autotune_plt-1.png" width="672"></p>
-<div class="sourceCode"><html><body><pre class="r"><span class="kw pkg">gridExtra</span><span class="kw ns">::</span><span class="fu"><a href="https://rdrr.io/pkg/gridExtra/man/arrangeGrob.html">grid.arrange</a></span>(<span class="no">fx_vars_be</span><span class="kw">[[</span><span class="st">'ageph_power'</span>]] <span class="kw">%&gt;%</span> <span class="fu"><a href="../reference/group_pd.html">group_pd</a></span>(<span class="kw">ngroups</span> <span class="kw">=</span> <span class="no">tune_be</span>$<span class="no">slct_feat</span>[<span class="st">'ageph_power'</span>]) <span class="kw">%&gt;%</span> <span class="no">plot_pd</span> + <span class="fu">ggtitle</span>(<span class="st">'MTPL BE'</span>),
-                        <span class="no">fx_vars_fr</span><span class="kw">[[</span><span class="st">'power_fuel'</span>]] <span class="kw">%&gt;%</span> <span class="fu"><a href="../reference/group_pd.html">group_pd</a></span>(<span class="kw">ngroups</span> <span class="kw">=</span> <span class="no">tune_fr</span>$<span class="no">slct_feat</span>[<span class="st">'power_fuel'</span>]) <span class="kw">%&gt;%</span> <span class="no">plot_pd</span> + <span class="fu">ggtitle</span>(<span class="st">'MTPL FR'</span>),
-                        <span class="kw">ncol</span> <span class="kw">=</span> <span class="fl">2</span>)</pre></body></html></div>
-<p><img src="maidrr_files/figure-html/autotune_plt-2.png" width="672"></p>
 </div>
   </div>
 
@@ -785,7 +767,7 @@ text-align: justify}
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
 </div>
 
       </footer>

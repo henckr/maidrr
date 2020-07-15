@@ -190,7 +190,7 @@ We segment the BE portfolio by specifying feature-specific number of groups. The
 ```{r segmentation_be}
 gr_data_be <- fx_vars_be %>% segmentation(data = mtpl_be,
                                           type = 'ngroups',
-                                          values = setNames(c(7, 4, 9, 3, 2, 2, 2, 1, 1, 2, 3, 4, 2),
+                                          values = setNames(c(7, 4, 9, 3, 2, 2, 2, 1, 1, 2, 3, 4, 2, 3),
                                                             unlist(lapply(fx_vars_be, comment))))
 head(gr_data_be)
 gr_data_be %>% 
@@ -381,29 +381,10 @@ The output of `maidrr::autotune` is a `list` with the following elements:
 tune_be
 ```
 
-Let's also autotune the $\lambda$ parameter on the FR portfolio:
-```{r autotune_fr, warning = FALSE}
-set.seed(5678)
-tune_fr <- gbm_fr %>% autotune(data = mtpl_fr,
-                               vars = gbm_fr$var.names,
-                               target = 'nclaims',
-                               hcut = 0.75,
-                               pred_fun = gbm_fun,
-                               lambdas = as.vector(outer(seq(1, 10, 0.1), 10^(-7:3))),
-                               nfolds = 5,
-                               strat_vars = c('nclaims', 'expo'),
-                               glm_par = alist(family = poisson(link = 'log'),
-                                               offset = log(expo)),
-                               err_fun = poi_dev,
-                               ncores = -1)
-```
 
 These are the optimal groupings obtained for the effects that were shown earlier in this vignette:
 ```{r autotune_plt, fig.width = 7}
 gridExtra::grid.arrange(fx_vars_be[['ageph']] %>% group_pd(ngroups = tune_be$slct_feat['ageph']) %>% plot_pd + ggtitle('MTPL BE'), 
-                        fx_vars_fr[['brand']] %>% group_pd(ngroups = tune_fr$slct_feat['brand']) %>% plot_pd + ggtitle('MTPL FR'),
-                        ncol = 2)
-gridExtra::grid.arrange(fx_vars_be[['ageph_power']] %>% group_pd(ngroups = tune_be$slct_feat['ageph_power']) %>% plot_pd + ggtitle('MTPL BE'), 
-                        fx_vars_fr[['power_fuel']] %>% group_pd(ngroups = tune_fr$slct_feat['power_fuel']) %>% plot_pd + ggtitle('MTPL FR'),
+                        fx_vars_be[['ageph_power']] %>% group_pd(ngroups = tune_be$slct_feat['ageph_power']) %>% plot_pd + ggtitle('MTPL BE'),
                         ncol = 2)
 ```
