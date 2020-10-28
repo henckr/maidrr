@@ -98,7 +98,7 @@ group_pd_ckmns <- function(pd, ngroups) {
     dplyr::mutate(ygrp = mean(y)) %>%
     dplyr::mutate(wgrp = sum(w))
   if ('x' %in% names(pd)) pd <- pd %>% dplyr::mutate(xgrp = paste0('{', paste(x, collapse = ', '), '}'))
-  if (all(c('x1', 'x2') %in% names(pd))) pd <- pd %>% dplyr::mutate(xgrp = dplyr::group_indices())
+  if (all(c('x1', 'x2') %in% names(pd))) pd <- pd %>% dplyr::mutate(xgrp = dplyr::cur_group_id())
 
   comment(pd) <- vrb
 

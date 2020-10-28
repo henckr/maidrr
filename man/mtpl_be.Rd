@@ -4,7 +4,8 @@
 \name{mtpl_be}
 \alias{mtpl_be}
 \title{Belgian motor third party liability insurance portfolio}
-\format{A data frame with 163210 rows and 13 variables: \describe{
+\format{
+A data frame with 163210 rows and 13 variables: \describe{
 \item{id}{policyholder id}
 \item{nclaims}{number of claims}
 \item{expo}{exposure period, as a fraction of a year}
@@ -19,7 +20,8 @@
 \item{agec}{age of the vehicle, in years}
 \item{postcode}{first two digits of the postal code of
 the municipality of residence}
-}}
+}
+}
 \usage{
 mtpl_be
 }
