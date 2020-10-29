@@ -89,14 +89,16 @@ insights <- function(mfit, vars, data, interactions = 'user', hcut = 0.75, pred_
   fx_vars[setdiff(vars, names(fx_in))] <- foreach::foreach (v = setdiff(vars, names(fx_in))) %dopar% {
     maidrr::get_pd(mfit = mfit,
                    var = v,
-                   grid = switch(as.character(grepl('_', v)),
-                                 'FALSE' = maidrr::get_grid(v, data),
-                                 'TRUE' = tidyr::expand_grid(maidrr::get_grid(unlist(strsplit(v, '_'))[1], data), maidrr::get_grid(unlist(strsplit(v, '_'))[2], data))),
+                   grid = maidrr::get_grid(unlist(strsplit(v, '_')), data),
                    data = data,
                    subsample = 10000,
                    fun = pred_fun)
   }
   doParallel::stopImplicitCluster()
+
+  # switch(as.character(grepl('_', v)),
+  #        'FALSE' = maidrr::get_grid(v, data),
+  #        'TRUE' = tidyr::expand_grid(maidrr::get_grid(unlist(strsplit(v, '_'))[1], data), maidrr::get_grid(unlist(strsplit(v, '_'))[2], data)))
 
   # Determine which interactions to include
   if (interactions == 'auto') {
