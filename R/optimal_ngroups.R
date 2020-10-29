@@ -54,7 +54,7 @@ loss_func <- function(pd, lambda, ngroups){
   if (pd_grp %>% is.null) return(Inf)
 
   pd_grp %>% dplyr::ungroup() %>%
-    #dplyr::summarize(loss = (sum(w * abs(y - ygrp))/sum(w)) + (lambda * log10(length(unique(xgrp))))) %>%
-    dplyr::summarize(loss = (mean((y - ygrp)^2)) + (lambda * log10(length(unique(xgrp))))) %>%
+    dplyr::summarize(loss = (weighted.mean((y - ygrp)^2, w)) + (lambda * log10(length(unique(xgrp))))) %>%
+    #dplyr::summarize(loss = (mean((y - ygrp)^2)) + (lambda * log10(length(unique(xgrp))))) %>%
     dplyr::pull(loss)
 }

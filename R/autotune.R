@@ -165,6 +165,7 @@ autotune <- function(mfit, data, vars, target, max_ngrps = 15, hcut = 0.75, ignr
   doParallel::stopImplicitCluster()
 
   # Get the cross-validation error
+  if (! ('matrix' %in% class(out_main) & nrow(lmbd_main) > 1)) out_main <- out_main %>% as.matrix() %>% t()
   out_main <- dplyr::bind_cols(lmbd_main, out_main %>% as.data.frame %>% setNames(seq_len(nfolds))) %>%
     dplyr::mutate(cv_err = rowMeans(dplyr::select(., as.character(seq_len(nfolds))), na.rm = TRUE)) %>% dplyr::arrange(cv_err)
 
@@ -223,6 +224,7 @@ autotune <- function(mfit, data, vars, target, max_ngrps = 15, hcut = 0.75, ignr
   doParallel::stopImplicitCluster()
 
   # Get the cross-validation error
+  if (! ('matrix' %in% class(out_intr) & nrow(lmbd_intr) > 1)) out_intr <- out_intr %>% as.matrix() %>% t()
   out_intr <- dplyr::bind_cols(lmbd_intr, out_intr %>% as.data.frame %>% setNames(seq_len(nfolds))) %>%
     dplyr::mutate(cv_err = rowMeans(dplyr::select(., as.character(seq_len(nfolds))), na.rm = TRUE)) %>% dplyr::arrange(cv_err)
   if (all(out_intr$cv_err == Inf)) warning('All interaction combinations lead to rank-deficient GLM fits, try adding larger values for lambda to the grid.')
