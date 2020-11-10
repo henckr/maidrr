@@ -51,8 +51,6 @@ explain <- function(surro, instance, plt = TRUE) {
 
   # Get the predictions for each term on the linear predictor scale
   preds <- surro %>% predict(newdata = instance, type = 'terms', se.fit = TRUE)
-  pred_base <- preds$fit %>% attr('constant') %>% ilink_fun() %>% round(digits = 4)
-  pred_this <- surro %>% predict(newdata = instance, type = 'response') %>% unname() %>% round(digits = 4)
 
   # Calculate the fit and 95% confidence bounds
   coefs <- tibble::tibble(term = sub('_$', '', names(preds$fit[1, ])),
@@ -67,11 +65,10 @@ explain <- function(surro, instance, plt = TRUE) {
   instance_chr <- instance %>% dplyr::mutate_if(is.factor, as.character)
   coefs[! grepl('_', coefs$term), 'value'] <-  coefs[! grepl('_', coefs$term), ][['term']] %>% sprintf('%s=%s', ., instance_chr[.])
 
-  if (plt) return(coefs %>% ggplot(aes(x = reorder(value, -fit_resp), y = fit_resp)) + geom_point(size = 5) +
+  if (plt) return(coefs %>% ggplot(aes(x = reorder(value, -fit_resp), y = fit_resp)) + geom_point(size = 3) +
                     geom_errorbar(aes(ymin = lwr_conf, ymax = upr_conf), width = 0.5) +
                     geom_hline(yintercept = ilink_fun(0), alpha = 0.5, size = 1, linetype = 'dashed') +
-                    coord_flip() + labs(x = '', y = 'Feature contributions') + theme_bw() +
-                    geom_text(size = 5, aes(x = +Inf, y = +Inf, hjust = 1.1, vjust = 1.5, label = sprintf('Prediction: %g\nBaseline: %g', pred_this, pred_base))))
+                    coord_flip() + labs(x = '', y = 'Feature contributions') + theme_bw())
 
   return(coefs)
 }
