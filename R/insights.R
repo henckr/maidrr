@@ -86,7 +86,7 @@ insights <- function(mfit, vars, data, interactions = 'user', hcut = 0.75, pred_
          doParallel::registerDoParallel(ncores))
 
   # Iterate over the variables to get effects
-  fx_vars[setdiff(vars, names(fx_in))] <- foreach::foreach (v = setdiff(vars, names(fx_in))) %dopar% {
+  fx_vars[setdiff(vars, names(fx_in))] <- foreach::foreach (v = setdiff(vars, names(fx_in)), .packages = (.packages())) %dopar% {
     maidrr::get_pd(mfit = mfit,
                    var = v,
                    grid = maidrr::get_grid(unlist(strsplit(v, '_')), data),
