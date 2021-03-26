@@ -34,5 +34,16 @@
 #' }
 #' @export
 surrogate <- function(data, par_list) {
+
+  if(!is.null(par_list$formula)) {
+    char_form <- deparse1(par_list$formula)
+    vars_form <- intersect(trimws(strsplit(gsub('.*~', '', char_form), ' [+] ')[[1]]), names(data))
+    nlev <- sapply(vars_form, function(x) data %>% dplyr::pull(x) %>% unique() %>% length())
+    if (any(nlev == 1)) {
+      warning('Removed the following features from the GLM as they only have one unique level: ', paste(vars_form[nlev == 1], collapse = ' '))
+      par_list$formula <- as.formula(paste(trimws(gsub('~.*', '', char_form)), paste(vars_form[nlev > 1], collapse = ' + '), sep = ' ~ '))
+    }
+  }
+
   do.call('glm', c(list(data = quote(data)), par_list))
 }
