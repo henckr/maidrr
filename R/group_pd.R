@@ -34,6 +34,12 @@
 #' @export
 group_pd <- function(pd, ngroups) {
 
+  if (ngroups > length(unique(pd$y))) {
+    warning(sprintf('It was not possible to group %s in %i groups, because there are only %i unique PD levels. Returned grouping for %i groups.',
+                    comment(pd), ngroups, length(unique(pd$y)), length(unique(pd$y))))
+    ngroups <- length(unique(pd$y))
+  }
+
   # One-dimensional partial dependence
   if ('x' %in% names(pd)) {
     # Continuous or ordinal feature
@@ -55,15 +61,12 @@ group_pd <- function(pd, ngroups) {
 #' @export
 group_pd_ckseg <- function(pd, ngroups) {
 
-  if (ngroups > nrow(pd)) {
-    warning(sprintf('It was not possible to group %s in %i groups, returned NULL.', comment(pd), ngroups))
-    return(NULL)
-  }
-
   vrb <- comment(pd)
 
   # Perform the clustering
-  clust <- Ckmeans.1d.dp::Cksegs.1d.dp(y = pd$y, k = ngroups, x = pd$x)
+  clust <- switch(as.character(ngroups > 1),
+                  'TRUE' = Ckmeans.1d.dp::Cksegs.1d.dp(y = pd$y, k = ngroups, x = pd$x),
+                  'FALSE' = list('cluster' = rep(1, nrow(pd))))
 
   # Added grouped values to the partial dependence
   pd <- pd %>% dplyr::mutate(clust = clust$cluster) %>%
@@ -82,15 +85,12 @@ group_pd_ckseg <- function(pd, ngroups) {
 #' @export
 group_pd_ckmns <- function(pd, ngroups) {
 
-  if (ngroups > nrow(pd)) {
-    warning(sprintf('It was not possible to group %s in %i groups, returned NULL.', comment(pd), ngroups))
-    return(NULL)
-  }
-
   vrb <- comment(pd)
 
   # Perform the clustering
-  clust <- Ckmeans.1d.dp::Ckmeans.1d.dp(x = pd$y, k = ngroups)
+  clust <- switch(as.character(ngroups > 1),
+                  'TRUE' = Ckmeans.1d.dp::Ckmeans.1d.dp(x = pd$y, k = ngroups),
+                  'FALSE' = list('cluster' = rep(1, nrow(pd))))
 
   # Added grouped values to the partial dependence
   pd <- pd %>% dplyr::mutate(clust = clust$cluster) %>%

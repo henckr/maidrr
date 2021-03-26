@@ -77,41 +77,26 @@ test_that('output is of the expected format (two-way interaction)', {
 
 
 test_that('an error is produced when input is of wrong format', {
-  expect_error(data.frame('x' = c(TRUE, FALSE, FALSE, TRUE)) %>%
-               group_pd(ngroups = 4),
+  expect_error(suppressWarnings(data.frame('x' = c(TRUE, FALSE, FALSE, TRUE)) %>% group_pd(ngroups = 4)),
                'Unsupported variable type. Only integers, numerics and factors are handled by this function.')
-  expect_error(data.frame('x1' = c(TRUE, FALSE, FALSE, TRUE)) %>%
-               group_pd(ngroups = 4),
+  expect_error(suppressWarnings(data.frame('x1' = c(TRUE, FALSE, FALSE, TRUE)) %>% group_pd(ngroups = 4)),
                'The pd data frame is supplied in a wrong format \\(either col x or cols x1 and x2 needed, see doc of get_pd\\).')
 })
 
 
-test_that('a warning is produced and NULL is returned when grouping fails', {
+test_that('a warning is produced when grouping fails', {
 
   expect_warning(gbm_fit %>% get_pd(var = 'coverage',
                                     grid = data.frame('coverage' = c('TPL', ' TPL+', 'TPL++')),
                                     data = mtpl_be,
                                     subsample = 1000,
-                                    fun = gbm_fun) %>% group_pd(ngroups = 5),
-                 'It was not possible to group coverage in 5 groups, returned NULL.')
+                                    fun = gbm_fun) %>% group_pd(ngroups = 5))
 
-  expect_null(suppressWarnings(gbm_fit %>% get_pd(var = 'coverage',
-                                                  grid = data.frame('coverage' = c('TPL', ' TPL+', 'TPL++')),
-                                                  data = mtpl_be,
-                                                  subsample = 1000,
-                                                  fun = gbm_fun) %>% group_pd(ngroups = 5)))
 
   expect_warning(gbm_fit %>% get_pd(var = 'ageph',
                                     grid = data.frame('ageph' = 20:70),
                                     data = mtpl_be,
                                     subsample = 1000,
-                                    fun = gbm_fun) %>% group_pd(ngroups = 100),
-                 'It was not possible to group ageph in 100 groups, returned NULL.')
-
-  expect_null(suppressWarnings(gbm_fit %>% get_pd(var = 'ageph',
-                                                  grid = data.frame('ageph' = 20:70),
-                                                  data = mtpl_be,
-                                                  subsample = 1000,
-                                                  fun = gbm_fun) %>% group_pd(ngroups = 100)))
+                                    fun = gbm_fun) %>% group_pd(ngroups = 100))
 
 })
