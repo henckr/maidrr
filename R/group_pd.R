@@ -71,7 +71,7 @@ group_pd_ckseg <- function(pd, ngroups) {
   # Added grouped values to the partial dependence
   pd <- pd %>% dplyr::mutate(clust = clust$cluster) %>%
     dplyr::group_by(clust) %>%
-    dplyr::mutate(ygrp = Weighted.mean(y,w)) %>%
+    dplyr::mutate(ygrp = weighted.mean(y,w)) %>%
     dplyr::mutate(wgrp = sum(w)) %>%
     dplyr::mutate(xgrp = paste('[', round(min(as.numeric(x)), digits = 2), ', ', round(max(as.numeric(x)), digits = 2), ']', sep = ''))
 
@@ -95,7 +95,7 @@ group_pd_ckmns <- function(pd, ngroups) {
   # Added grouped values to the partial dependence
   pd <- pd %>% dplyr::mutate(clust = clust$cluster) %>%
     dplyr::group_by(clust) %>%
-    dplyr::mutate(ygrp = Weighted.mean(y,w)) %>%
+    dplyr::mutate(ygrp = weighted.mean(y,w)) %>%
     dplyr::mutate(wgrp = sum(w))
   if ('x' %in% names(pd)) pd <- pd %>% dplyr::mutate(xgrp = paste0('{', paste(x, collapse = ', '), '}'))
   if (all(c('x1', 'x2') %in% names(pd))) pd <- pd %>% dplyr::mutate(xgrp = dplyr::cur_group_id())
